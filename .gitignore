@@ -2,6 +2,12 @@
 # Created by https://www.toptal.com/developers/gitignore/api/c++,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=c++,python
 
+### 솔루션 빌드 관련 폴더
+
+DllInjection_ex/.vs/*
+DllInjection_ex/PassFilePath/x64/*
+DllInjeciton_ex/packages/*
+
 
 ### Document Files ###
 *.docx

@@ -6,6 +6,10 @@
 #include <fstream>
 #include <string>
 #include <locale>
+#include <stdio.h>
+
+
+
 
 BOOL FindInWhiteList(LPCWSTR lpFileName) {
 	
@@ -56,7 +60,7 @@ BOOL FindInWhiteList(LPCWSTR lpFileName) {
 		}
 	}
 
-	
+	file.close();
 	return findFlag;
 
 }
@@ -121,6 +125,7 @@ BOOL SendFilePath(LPCWSTR lpFileName) {
 }
 
 
+
 HANDLE CreateFileFunctionsHook(
 	LPCWSTR               lpFileName,
 	DWORD                 dwDesiredAccess,
@@ -136,7 +141,7 @@ HANDLE CreateFileFunctionsHook(
 	std::wstring chDocFileName = L"";
 	BOOL whiteListFlag = FALSE;
 
-	wchar_t chDocPath[_MAX_PATH];
+	wchar_t chDocPath[200];
 	int nFind = 0;
 
 	wchar_t dllPath[_MAX_PATH];
@@ -147,6 +152,7 @@ HANDLE CreateFileFunctionsHook(
 
 	fullPathStr = lpFileName;
 
+	dwShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
 	ext = fullPathStr.substr(fullPathStr.find_last_of(L".") + 1);
 
 	GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, L"CreateFileFunctionHook", &hm);
@@ -157,40 +163,48 @@ HANDLE CreateFileFunctionsHook(
 	
 
 	if (ext.find(L"doc") != std::wstring::npos) { // 워드 파일일 경우
+		
 		OutputDebugString(L"doc!");
 		whiteListFlag = FindInWhiteList(lpFileName);
 
-		if (!whiteListFlag) {
+		// if (!whiteListFlag) {
+			OutputDebugString(L"Not Found In WhiteLIst!!");
 			SendFilePath(lpFileName);
 			wcscat_s(drive, chDocPath);
 			wcscat_s(drive, L"freeDocuments\\docufree.docx");
 			OutputDebugString(drive);
-			return CreateFileW(chDocPath, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
-		}
+			
+			return CreateFileW(drive, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+			
+		// }
 		
 
 	}else if(ext.find(L"xls") != std::wstring::npos){ // 엑셀 파일일 경우
 		OutputDebugString(L"xls");
 		whiteListFlag = FindInWhiteList(lpFileName);
 
-		if (!whiteListFlag) {
+		// if (!whiteListFlag) {
+			OutputDebugString(L"Not Found In WhiteLIst!!");
 			SendFilePath(lpFileName);
 			wcscat_s(drive, chDocPath);
 			wcscat_s(drive, L"freeDocuments\\docufree.xlsx");
-			return CreateFileW(chDocPath, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
-		}
+			return CreateFileW(drive, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+			
+		// }
 		
 
 	}else if (ext.find(L"ppt") != std::wstring::npos) { // 파워포인트 파일일 경우
 		OutputDebugString(L"ppt");
 		whiteListFlag = FindInWhiteList(lpFileName);
 		
-		if (!whiteListFlag) {
+		// if (!whiteListFlag) {
+			OutputDebugString(L"Not Found In WhiteLIst!!");
 			SendFilePath(lpFileName);
 			wcscat_s(drive, chDocPath);
 			wcscat_s(drive, L"freeDocuments\\docufree.pptx");
-			return CreateFileW(chDocPath, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
-		}
+			return CreateFileW(drive, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+			
+		// }
 		
 	}
 	
@@ -201,11 +215,11 @@ HANDLE CreateFileFunctionsHook(
 	
 }
 
-extern "C" void __declspec(dllexport) __stdcall NativeInjectionEntryPoint(REMOTE_ENTRY_INFO * inRemoteInfo);
+extern "C" void __declspec(dllexport)  NativeInjectionEntryPoint(REMOTE_ENTRY_INFO * inRemoteInfo);
 
 
 
-void __stdcall NativeInjectionEntryPoint(REMOTE_ENTRY_INFO* inRemoteInfo) {
+void NativeInjectionEntryPoint(REMOTE_ENTRY_INFO* inRemoteInfo) {
 	
 	
 	HOOK_TRACE_INFO hHook = { NULL };

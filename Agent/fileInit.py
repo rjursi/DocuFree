@@ -11,40 +11,6 @@ freeDocDir = ".\\freeDocuments\\"
 txt_WhiteListPath = ".\\whiteList.txt"
 txt_WhiteList = None
 
-'''
-def MakeFreeDoc():
-    docxFilePath = ".\\freeDocuments\\docufree.docx"
-    excelFilePath = ".\\freeDocuments\\docufree.xlsx"
-    pptFilePath = ".\\freeDocuments\\docufree.pptx"
-
-    docxInst = docx.Document()
-    docxInst.save(docxFilePath)
-    
-    xlsxInst = openpyxl.Workbook()
-    xlsxInst.save(excelFilePath)
-    
-    pptxInst = pptx.Presentation()
-    pptxInst.save(pptFilePath)
-    
-
-def Init_makeFileDir():
-    # 안전한 DocuFree 문서 파일이 담기는 폴더 생성
-    # 문서 WhiteList 텍스트 파일 생성
-    
-    
-    if not os.path.exists(freeDocDir):
-        # 폴더 존재 유무 확인
-        os.makedirs(freeDocDir)
-        MakeFreeDoc()
-    
-
-
-    if not os.path.exists(txt_WhiteListPath):
-        # whiteList 텍스트 파일 존재 여부 확인
-        txt_WhiteList = open(txt_WhiteListPath,'w')
-        txt_WhiteList.close()
-        txt_WhiteList = None
-''' 
 
 def AddFileInfo(filePath):
    

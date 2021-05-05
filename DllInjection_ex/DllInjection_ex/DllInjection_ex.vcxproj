@@ -23,8 +23,8 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{dbdec71d-1507-4830-b0c9-a746dd2ce9e1}</ProjectGuid>
     <RootNamespace>DllInjectionex</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
     <ProjectName>DllInjector</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

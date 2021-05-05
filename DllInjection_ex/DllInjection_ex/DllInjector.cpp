@@ -109,7 +109,7 @@ int DllInjector::GetOfficeProcessHandle() {
 					dllInjectFlag = SearchDll(hProcess);
 					
 					if (!dllInjectFlag) { // 기존에 dll 이 없을 경우에만
-						// this->InjectDll(hProcess);
+					
 						this->InjectDll(entry.th32ProcessID);
 					}
 					
@@ -125,7 +125,7 @@ int DllInjector::GetOfficeProcessHandle() {
 					dllInjectFlag = SearchDll(hProcess);
 
 					if (!dllInjectFlag) { // 기존에 dll 이 없을 경우에만
-						// this->InjectDll(hProcess);
+						
 						this->InjectDll(entry.th32ProcessID);
 					}
 					
@@ -137,7 +137,7 @@ int DllInjector::GetOfficeProcessHandle() {
 					hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, entry.th32ProcessID);
 					dllInjectFlag = SearchDll(hProcess);
 					if (!dllInjectFlag) { // 기존에 dll 이 없을 경우에만
-						// this->InjectDll(hProcess);
+						
 						this->InjectDll(entry.th32ProcessID);
 					}
 					

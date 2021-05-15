@@ -29,7 +29,7 @@ def AddFileInfo(filePath):
             findFlag = True
             break
 
-    if(!findFlag):
+    if not findFlag:
         txt_WhiteList.write("{0}\n".format(filePath))
     
     txt_WhiteList.close()
@@ -68,7 +68,9 @@ def RunPollingProc():
         print(data.decode('utf-16'))
         
         AddFileInfo(data.decode('utf-16'))
-    
+       
+
+
     win32file.CloseHandle(pipe)
    
         

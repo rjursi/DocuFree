@@ -1,6 +1,6 @@
 ## Explanation
 
-> This GUI was created for malware detection.
+> detect MS OFFICE VBA Source Code 
 
 <br><br>
 
@@ -10,22 +10,24 @@
 
 > [![Generic badge](https://img.shields.io/badge/python3-v3.7.9-BLUE.svg)](https://www.python.org/downloads/release/python-379/)
 
-
-2. Python package installation
+2. option
 
 ```bash
-pip install -r requirements.txt 
+# you can know option 
+python3 docufree.py -h
 ```
+
 
 3. run 
 
 ```bash
-python3 main.py
+python3 docuFree.py file
 ```
+
 
 <br><br>
 
-### GUI Development Team
+### Source Code Developer
 
 
 <table>
@@ -34,19 +36,11 @@ python3 main.py
             <a href="https://github.com/hanjiung"><img height="100px" width="100px" src="https://avatars.githubusercontent.com/u/51845043?v=4" /></a>
             <br /> 
         </td>
-        <td align="center" width="140px" height="150px">
-            <a href=""><img height="100px" width="100px" src="???" /></a>
-            <br /> 
-        </td>
-    </tr>
     <tr>
       <td>
-            <a href="https://github.com/hanjiung">Jiung</a>
+            <a href="https://github.com/wooongdev">Jiung</a>
       </td>
-      <td>
-            <a href="https://github.com/">Private</a>
-      </td>
-    </tr>
+  </tr>
 
 </table>
 
@@ -59,8 +53,6 @@ Date of latest update: 2021.05.08
 <br><br>
 
 ## TODO
-- [] 로그 세부화
-- [] DB 연동작업
 - [] 코드 리팩토링
-- [X] 틀 짜기
-- [] 동적 GUI
+- [] GUI 연동 작업
+- [] 코드 로직 속도

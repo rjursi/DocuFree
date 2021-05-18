@@ -1,26 +1,22 @@
 import os
-import time
-import ctypes
 
 from subprocess import Popen, PIPE
 from win32 import win32pipe, win32file
 from win32api import OutputDebugString
 
-
-freeDocDir = ".\\freeDocuments\\"
 txt_WhiteListPath = ".\\whiteList.txt"
 txt_WhiteList = None
-
 
 def AddFileInfo(filePath):
    
     findFlag = False
-
+    
+    
     if not os.path.exists(txt_WhiteListPath):
         # whiteList 텍스트 파일 존재 여부 확인
-        txt_WhiteList = open(txt_WhiteListPath,'w')
+        txt_WhiteList = open(txt_WhiteListPath,'r+')
     else:
-        txt_WhiteList = open(txt_WhiteListPath,'a')
+        txt_WhiteList = open(txt_WhiteListPath,'a+')
     
     lines = txt_WhiteList.readlines();
     
@@ -35,10 +31,14 @@ def AddFileInfo(filePath):
     txt_WhiteList.close()
     txt_WhiteList = None
     
-    
+
+
+
 def RunPollingProc():
     
-   
+
+    
+    OutputDebugString("Create Or Check DB Exists...")
     pollingProc = Popen(".\\DllInjector.exe", shell = False)
 
     pipename = "\\\\.\\pipe\\docufree"
@@ -56,6 +56,7 @@ def RunPollingProc():
     )
 
     while True:
+        
         OutputDebugString("start pipe server...")
         win32pipe.ConnectNamedPipe(pipe, );
 
@@ -67,6 +68,7 @@ def RunPollingProc():
         print(data)
         print(data.decode('utf-16'))
         
+
         AddFileInfo(data.decode('utf-16'))
        
 
@@ -75,6 +77,5 @@ def RunPollingProc():
    
         
 if __name__ == "__main__":
-    # Init_makeFileDir()
     RunPollingProc()
 

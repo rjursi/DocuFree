@@ -7,7 +7,10 @@
 #include <string>
 #include <locale>
 #include <stdio.h>
-
+#include <sqlite3.h>
+#include <openssl/md5.h>
+#include <iomanip>
+#include <sstream>
 
 
 
@@ -24,7 +27,9 @@ BOOL FindInWhiteList(LPCWSTR lpFileName) {
 	GetModuleFileName(hm, dllPath, sizeof(dllPath));
 
 	_wsplitpath_s(dllPath, drive, _MAX_PATH, dir, _MAX_PATH, NULL, NULL, NULL, NULL);
+	// dir : PassFilePath.dll 파일 디렉토리 위치
 	
+
 	wcscat_s(drive, dir);
 	wcscat_s(drive, L"whiteList.txt");
 	
@@ -124,6 +129,8 @@ BOOL SendFilePath(LPCWSTR lpFileName) {
 	}	
 }
 
+
+
 BOOL UnblockDocuFile(LPCWSTR lpFileName) {
 	
 	
@@ -169,7 +176,7 @@ HANDLE CreateFileFunctionsHook(
 	std::wstring str_lpFileName = L"";
 
 
-	BOOL whiteListFlag = FALSE;
+	BOOL whiteListFlag;
 
 	wchar_t chDocPath[200];
 	int nFind = 0;
@@ -204,32 +211,32 @@ HANDLE CreateFileFunctionsHook(
 			OutputDebugString(L"doc!");
 			OutputDebugString(lpFileName);
 
-
-			//whiteListFlag = FindInWhiteList(lpFileName);
-
-
-			// if (!whiteListFlag) {
-			OutputDebugString(L"Not Found In WhiteLIst!!");
-			SendFilePath(lpFileName);
+			whiteListFlag = FindInWhiteList(lpFileName);
+			// whiteListFlag = SQL_FindInWhiteList(drive, chDocPath, lpFileName);
 
 
-			wcscat_s(drive, chDocPath);
-			if (str_lpFileName.find(L"~$") != std::wstring::npos) { // 임시 파일이면
-				wcscat_s(drive, L"freeDocuments\\~$docufree.docx");
+			if (!whiteListFlag) {
+				OutputDebugString(L"Not Found In WhiteLIst!!");
+				
+
+
+				wcscat_s(drive, chDocPath);
+				if (str_lpFileName.find(L"~$") != std::wstring::npos) { // 임시 파일이면
+					wcscat_s(drive, L"freeDocuments\\~$docufree.docx");
+
+				}
+				else {
+
+					wcscat_s(drive, L"freeDocuments\\docufree.docx");
+					SendFilePath(lpFileName);
+					UnblockDocuFile(lpFileName);
+				}
+
+				OutputDebugString(drive);
+
+				return CreateFileW(drive, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 
 			}
-			else {
-
-				wcscat_s(drive, L"freeDocuments\\docufree.docx");
-
-				UnblockDocuFile(lpFileName);
-			}
-
-			OutputDebugString(drive);
-
-			return CreateFileW(drive, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
-
-			// }
 
 
 		}
@@ -238,31 +245,31 @@ HANDLE CreateFileFunctionsHook(
 
 			OutputDebugString(L"xls");
 			OutputDebugString(lpFileName);
-			// dwShareMode = FILE_SHARE_READ | FILE_SHARE_WRITE;
 
 
-			//whiteListFlag = FindInWhiteList(lpFileName);
+			whiteListFlag = FindInWhiteList(lpFileName);
+			// whiteListFlag = SQL_FindInWhiteList(drive, chDocPath, lpFileName);
 
 
-			//if (!whiteListFlag) {
-			OutputDebugString(L"Not Found In WhiteLIst!!");
-			SendFilePath(lpFileName);
-			wcscat_s(drive, chDocPath);
-			if (str_lpFileName.find(L"~$") != std::wstring::npos) {
-				wcscat_s(drive, L"freedocuments\\~$docufree.xlsx");
+			if (!whiteListFlag) {
+				OutputDebugString(L"Not Found In WhiteLIst!!");
+				
+				wcscat_s(drive, chDocPath);
+				if (str_lpFileName.find(L"~$") != std::wstring::npos) {
+					wcscat_s(drive, L"freedocuments\\~$docufree.xlsx");
+
+				}
+				else {
+
+					wcscat_s(drive, L"freedocuments\\docufree.xlsx");
+					SendFilePath(lpFileName);
+					UnblockDocuFile(lpFileName);
+				}
+
+
+				return CreateFileW(drive, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 
 			}
-			else {
-
-				wcscat_s(drive, L"freedocuments\\docufree.xlsx");
-
-				UnblockDocuFile(lpFileName);
-			}
-
-
-			return CreateFileW(drive, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
-
-			//}
 
 
 
@@ -272,26 +279,26 @@ HANDLE CreateFileFunctionsHook(
 			OutputDebugString(L"ppt");
 			OutputDebugString(lpFileName);
 
+			whiteListFlag = FindInWhiteList(lpFileName);
+			// whiteListFlag = SQL_FindInWhiteList(drive, chDocPath, lpFileName);
 
-			//whiteListFlag = FindInWhiteList(lpFileName);
+			if (!whiteListFlag) {
+				OutputDebugString(L"Not Found In WhiteLIst!!");
+				
+				wcscat_s(drive, chDocPath);
+				if (str_lpFileName.find(L"~$") != std::wstring::npos) {
+					wcscat_s(drive, L"freeDocuments\\~$docufree.pptx");
 
-			//if (!whiteListFlag) {
-			OutputDebugString(L"Not Found In WhiteLIst!!");
-			SendFilePath(lpFileName);
-			wcscat_s(drive, chDocPath);
-			if (str_lpFileName.find(L"~$") != std::wstring::npos) {
-				wcscat_s(drive, L"freeDocuments\\~$docufree.pptx");
+				}
+				else {
+
+					wcscat_s(drive, L"freeDocuments\\docufree.pptx");
+					UnblockDocuFile(lpFileName);
+					SendFilePath(lpFileName);
+				}
+				return CreateFileW(drive, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 
 			}
-			else {
-
-				wcscat_s(drive, L"freeDocuments\\docufree.pptx");
-				UnblockDocuFile(lpFileName);
-
-			}
-			return CreateFileW(drive, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
-
-			//}
 
 		}
 	}

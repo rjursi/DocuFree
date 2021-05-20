@@ -45,16 +45,13 @@ namespace CloseTempDocu
 
                     }
                 }
-                catch(System.Runtime.InteropServices.COMException)
+                catch(System.Runtime.InteropServices.COMException e)
                 {
+                    Console.WriteLine(e.Message);
                     continue;
                 }
                 
             }
-            
-
-            
-            
         }
 
         static void CloseExcel(string filePath)
@@ -82,8 +79,9 @@ namespace CloseTempDocu
                         }
                     }
                 }
-                catch (System.Runtime.InteropServices.COMException)
+                catch (System.Runtime.InteropServices.COMException e)
                 {
+                    Console.WriteLine(e.Message);
                     continue;
                 }
                 
@@ -107,13 +105,15 @@ namespace CloseTempDocu
                     {
                         if (present.FullName == filePath)
                         {
+                            
                             present.Close();
                             flag_exists = false;
                         }
                     }
                 }
-                catch (System.Runtime.InteropServices.COMException)
+                catch (System.Runtime.InteropServices.COMException e)
                 {
+                    Console.WriteLine(e.Message);
                     continue;
                 }
             }

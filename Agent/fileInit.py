@@ -73,13 +73,14 @@ def RunPollingProc():
         print(data.decode('utf-16'))
         filename = data.decode('utf-16');
         
+        AddFileInfo(filename) # 나중에 다시 검사하지 않도록 whitelist 추가
         
         filename = repr("\"" + filename + "\"")
         # print(tempCloseString)
         filename = filename.replace("\\x00","")
         subprocess.run([cmd_closeTemp, filename])
         
-        AddFileInfo(filename)
+        
        
 
 

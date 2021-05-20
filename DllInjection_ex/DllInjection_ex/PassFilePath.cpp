@@ -196,7 +196,7 @@ HANDLE CreateFileFunctionsHook(
 	GetModuleFileName(hm, dllPath, sizeof(dllPath));
 
 
-	OutputDebugString(lpFileName);
+	// OutputDebugString(lpFileName);
 
 
 	_wsplitpath_s(dllPath, drive, _MAX_PATH, chDocPath, _MAX_PATH, NULL, NULL, NULL, NULL);
@@ -218,19 +218,16 @@ HANDLE CreateFileFunctionsHook(
 
 					wcscat_s(drive, chDocPath);
 
-					if (ext.find(L"docx") != std::wstring::npos) {
-						if (str_lpFileName.find(L"~$") != std::wstring::npos) { // 임시 파일이면
-							wcscat_s(drive, L"freeDocuments\\~$docufree.docx");
+					if (ext.compare(L"doc") == 0) {
 
-						}
-						else {
 
-							wcscat_s(drive, L"freeDocuments\\docufree.docx");
-							SendFilePath(lpFileName);
-							UnblockDocuFile(lpFileName);
-						}
+						SendFilePath(lpFileName);
+						UnblockDocuFile(lpFileName);
+						return CreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 					}
-					else if (ext.find(L"docm") != std::wstring::npos) {
+
+					if (ext.compare(L"docm") == 0) {
+						OutputDebugString(L"Real Docm!");
 						if (str_lpFileName.find(L"~$") != std::wstring::npos) { // 임시 파일이면
 							wcscat_s(drive, L"freeDocuments\\~$docufree.docm");
 
@@ -238,24 +235,24 @@ HANDLE CreateFileFunctionsHook(
 						else {
 
 							wcscat_s(drive, L"freeDocuments\\docufree.docm");
-							SendFilePath(lpFileName);
-							UnblockDocuFile(lpFileName);
+							
 						}
 					}
-					else {
+					else if(ext.compare(L"docx") == 0){
 
 						if (str_lpFileName.find(L"~$") != std::wstring::npos) { // 임시 파일이면
-							wcscat_s(drive, L"freeDocuments\\~$docufree.doc");
+							wcscat_s(drive, L"freeDocuments\\~$docufree.docx");
 
 						}
 						else {
 
-							wcscat_s(drive, L"freeDocuments\\docufree.doc");
-							SendFilePath(lpFileName);
-							UnblockDocuFile(lpFileName);
+							wcscat_s(drive, L"freeDocuments\\docufree.docx");
+							
 						}
 					}
-					OutputDebugString(drive);
+					
+					SendFilePath(lpFileName);
+					UnblockDocuFile(lpFileName);
 
 					return CreateFileW(drive, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 
@@ -272,26 +269,19 @@ HANDLE CreateFileFunctionsHook(
 
 				// whiteListFlag = FindInWhiteList(lpFileName);
 
-
-
 				if (!whiteListFlag) {
 					OutputDebugString(L"Not Found In WhiteLIst!!");
 
 					wcscat_s(drive, chDocPath);
 
-					if (ext.find(L"xlsx") != std::wstring::npos) {
-						if (str_lpFileName.find(L"~$") != std::wstring::npos) {
-							wcscat_s(drive, L"freeDocuments\\~$docufree.xlsx");
+					if (ext.compare(L"xls") == 0) {
 
-						}
-						else {
-
-							wcscat_s(drive, L"freeDocuments\\docufree.xlsx");
-							SendFilePath(lpFileName);
-							UnblockDocuFile(lpFileName);
-						}
+						
+						SendFilePath(lpFileName);
+						UnblockDocuFile(lpFileName);
+						return CreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 					}
-					else if (ext.find(L"xlsm") != std::wstring::npos) {
+					if (ext.compare(L"xlsm") == 0) {
 						if (str_lpFileName.find(L"~$") != std::wstring::npos) {
 							wcscat_s(drive, L"freeDocuments\\~$docufree.xlsm");
 
@@ -299,31 +289,27 @@ HANDLE CreateFileFunctionsHook(
 						else {
 
 							wcscat_s(drive, L"freeDocuments\\docufree.xlsm");
-							SendFilePath(lpFileName);
-							UnblockDocuFile(lpFileName);
+							
 						}
 					}
-					else {
+					else if (ext.compare(L"xlsx") == 0) {
 						if (str_lpFileName.find(L"~$") != std::wstring::npos) {
-							wcscat_s(drive, L"freeDocuments\\~$docufree.xls");
+							wcscat_s(drive, L"freeDocuments\\~$docufree.xlsx");
 
 						}
 						else {
 
-							wcscat_s(drive, L"freeDocuments\\docufree.xls");
-							SendFilePath(lpFileName);
-							UnblockDocuFile(lpFileName);
+							wcscat_s(drive, L"freeDocuments\\docufree.xlsx");
+							
 						}
 					}
 
-
-
+					SendFilePath(lpFileName);
+					UnblockDocuFile(lpFileName);
+					
 					return CreateFileW(drive, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 
 				}
-
-
-
 
 			}
 			else if (ext.find(L"ppt") != std::wstring::npos) { // 파워포인트 파일일 경우
@@ -338,20 +324,14 @@ HANDLE CreateFileFunctionsHook(
 
 					wcscat_s(drive, chDocPath);
 
-					if (ext.find(L"pptx") != std::wstring::npos) {
-						if (str_lpFileName.find(L"~$") != std::wstring::npos) {
-							wcscat_s(drive, L"freeDocuments\\~$docufree.pptx");
+					if (ext.compare(L"ppt") == 0) {
 
-						}
-						else {
-
-							wcscat_s(drive, L"freeDocuments\\docufree.pptx");
-							UnblockDocuFile(lpFileName);
-							SendFilePath(lpFileName);
-						}
-
+						SendFilePath(lpFileName);
+						UnblockDocuFile(lpFileName);
+						return CreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+						
 					}
-					else if (ext.find(L"pptm") != std::wstring::npos) {
+					if (ext.compare(L"pptm") == 0) {
 						if (str_lpFileName.find(L"~$") != std::wstring::npos) {
 							wcscat_s(drive, L"freeDocuments\\~$docufree.pptm");
 
@@ -359,31 +339,32 @@ HANDLE CreateFileFunctionsHook(
 						else {
 
 							wcscat_s(drive, L"freeDocuments\\docufree.pptm");
-							UnblockDocuFile(lpFileName);
-							SendFilePath(lpFileName);
+							
 						}
 
 					}
-					else {
+					else if(ext.compare(L"pptx") == 0){
 
 
 						if (str_lpFileName.find(L"~$") != std::wstring::npos) {
-							wcscat_s(drive, L"freeDocuments\\~$docufree.ppt");
+							wcscat_s(drive, L"freeDocuments\\~$docufree.pptx");
 
 						}
 						else {
 
-							wcscat_s(drive, L"freeDocuments\\docufree.ppt");
-							UnblockDocuFile(lpFileName);
-							SendFilePath(lpFileName);
+							wcscat_s(drive, L"freeDocuments\\docufree.pptx");
+							
 						}
 
-
 					}
+
+					SendFilePath(lpFileName);
+					UnblockDocuFile(lpFileName);
 
 					return CreateFileW(drive, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 
 				}
+
 			}
 		}
 	}

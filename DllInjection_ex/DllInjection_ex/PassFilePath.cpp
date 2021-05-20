@@ -136,22 +136,6 @@ BOOL UnblockDocuFile(LPCWSTR lpFileName) {
 	
 	std::wstring str_identFile = std::wstring(lpFileName) + L":Zone.Identifier";
 	OutputDebugString(str_identFile.c_str());
-	/*
-	HANDLE hStream = CreateFileW(str_identFile.c_str(),
-		GENERIC_READ | GENERIC_WRITE,
-		0,
-		NULL,
-		OPEN_ALWAYS,
-		0,
-		NULL);
-
-	if (hStream == INVALID_HANDLE_VALUE) {
-		OutputDebugString(L"No Zone Identifier");
-		CloseHandle(hStream);
-		return FALSE;
-	}
-	OutputDebugString(L"Zone Identifier Found!!");
-	*/
 	
 	DeleteFileW(str_identFile.c_str());
 	

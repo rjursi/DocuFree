@@ -1,12 +1,13 @@
 import os
 
 from subprocess import Popen, PIPE
+import subprocess
 from win32 import win32pipe, win32file
 from win32api import OutputDebugString
 
 txt_WhiteListPath = ".\\whiteList.txt"
 txt_WhiteList = None
-
+cmd_closeTemp = "CloseTempDocu.exe"
 def AddFileInfo(filePath):
    
     findFlag = False
@@ -32,6 +33,9 @@ def AddFileInfo(filePath):
     txt_WhiteList = None
     
 
+def CloseTempDocument(filePath):
+    pass
+
 
 
 def RunPollingProc():
@@ -42,7 +46,7 @@ def RunPollingProc():
     pollingProc = Popen(".\\DllInjector.exe", shell = False)
 
     pipename = "\\\\.\\pipe\\docufree"
-    
+    filename = None
     
     # 자식 프로세스 (DllInjector) 와 파일명을 추려내기 위한 Pipe 생성
     pipe = win32pipe.CreateNamedPipe(
@@ -67,9 +71,15 @@ def RunPollingProc():
         OutputDebugString("file readed!!")
         print(data)
         print(data.decode('utf-16'))
+        filename = data.decode('utf-16');
         
-
-        AddFileInfo(data.decode('utf-16'))
+        
+        filename = repr("\"" + filename + "\"")
+        # print(tempCloseString)
+        filename = filename.replace("\\x00","")
+        subprocess.run([cmd_closeTemp, filename])
+        
+        AddFileInfo(filename)
        
 
 

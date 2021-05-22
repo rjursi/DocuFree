@@ -26,7 +26,6 @@ import time
 from win32api import GetSystemMetrics
 
 
-
 class AppMainFrame:
     
     def __init__(self):
@@ -207,8 +206,8 @@ class AppMainFrame:
 
         self.logGUI.setWindowTitle("DOCFREE(Ver 0.3) - LOG GUI")
         if GetSystemMetrics(0) >= 1600 and GetSystemMetrics(1) >= 900:
-            self.logGUI.move(600, 200)
-            self.logGUI.resize(500, 500)
+            self.logGUI.move(600, 300)
+            self.logGUI.resize(500, 400)
         elif GetSystemMetrics(0) < 1600 and GetSystemMetrics(1) < 900:
             self.logGUI.move(300, 100)
             self.logGUI.resize(500, 400)
@@ -326,6 +325,15 @@ class AppMainFrame:
         self.app.exec_()
 
     def save(self):
-        print("저장")
+        con = sqlite3.connect('test.db')
+        cur = con.cursor()
+        cur.execute("select * from datelog")
+        txt = cur.fetchall()
+        Filesave = QFileDialog.getSaveFileName(self.logGUI,'Save file', "", "txt files (*.txt)")
+        if Filesave[0] != "":
+            with open(Filesave[0], 'w') as f:
+                for i in txt:
+                    f.write(str(i))
+                    f.write("\n")
 
 main = AppMainFrame()

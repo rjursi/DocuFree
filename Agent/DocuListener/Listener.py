@@ -4,10 +4,13 @@ from subprocess import Popen, PIPE
 import subprocess
 from win32 import win32pipe, win32file
 from win32api import OutputDebugString
+from CommApiServer import DocuInfoSelect
+from DocuFilter import docufree
 
 txt_WhiteListPath = ".\\whiteList.txt"
 txt_WhiteList = None
 cmd_closeTemp = "CloseTempDocu.exe"
+
 def AddFileInfo(filePath):
    
     findFlag = False
@@ -33,15 +36,10 @@ def AddFileInfo(filePath):
     txt_WhiteList = None
     
 
-def CloseTempDocument(filePath):
-    pass
-
-
 
 def RunPollingProc():
     
 
-    
     OutputDebugString("Create Or Check DB Exists...")
     pollingProc = Popen(".\\DllInjector.exe", shell = False)
 
@@ -76,17 +74,26 @@ def RunPollingProc():
         AddFileInfo(filename) # 나중에 다시 검사하지 않도록 whitelist 추가
         
         filename = repr("\"" + filename + "\"")
-        # print(tempCloseString)
-        filename = filename.replace("\\x00","")
-        subprocess.run([cmd_closeTemp, filename])
-        
-        
        
+        filename = filename.replace("\\x00","")
+        subprocess.run([cmd_closeTemp, filename]) # 열렸던 파일 닫히도록
 
 
-    win32file.CloseHandle(pipe)
+        # ApiServer Check
+        searchResult = DocuInfoSelect.SetSearchFile(filename)
+        
+        if not searchResult:
+            # docufree 함수 내 함수 호출
+            # filename 값 넘겨주기
+            pass
+        
+
+    # win32file.CloseHandle(pipe)
    
         
-if __name__ == "__main__":
+def RunListener():
     RunPollingProc()
+
+def KillListener():
+    pass
 

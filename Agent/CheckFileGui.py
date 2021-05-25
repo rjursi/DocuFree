@@ -9,13 +9,15 @@
 
 import sys
 import time
+import PyQt5.QtCore
+
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QProgressBar, QCheckBox
 from PyQt5.Qt import *
 from PyQt5.QtCore import QBasicTimer
-import PyQt5.QtCore
 from qt_material import apply_stylesheet
 from PyQt5.QtGui import *
 from win32api import GetSystemMetrics
+
 
 class AppD(QWidget):
     def __init__(self):
@@ -124,8 +126,6 @@ class AppD(QWidget):
         self.show()
 
     
-        
-
     def timerEvent(self, event):
         pass
 
@@ -154,4 +154,5 @@ def Create():
     apply_stylesheet(app, theme="dark_lightgreen.xml", extra=extra)
 
     ex = AppD()
-    #sys.exit(app.exec_())
+    sys.exit(app.exec_())
+

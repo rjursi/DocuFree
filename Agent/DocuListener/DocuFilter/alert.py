@@ -1,9 +1,13 @@
+# alert 창 띄워주는 클래스
+# 객체 생성자로 파일명과 파일경로 보내주면 됨
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
-
+import os
 class alert(object):
     def __init__(self, filename, filepath):
-
+        
+        self.mainPath = os.path.dirname(os.path.abspath(__file__))
         self.filename = filename
         self.filepath = filepath
 
@@ -46,7 +50,7 @@ class alert(object):
         sizePolicy.setHeightForWidth(self.label_3.sizePolicy().hasHeightForWidth())
         self.label_3.setSizePolicy(sizePolicy)
         self.label_3.setText("")
-        self.label_3.setPixmap(QtGui.QPixmap("alert.png"))    #이미지
+        self.label_3.setPixmap(QtGui.QPixmap(os.path.join(self.mainPath, "images/alert.png")))    #이미지
         self.label_3.setScaledContents(True)
         self.label_3.setObjectName("label_3")
         self.fillename = QtWidgets.QLabel(self.centralwidget)
@@ -95,3 +99,4 @@ def alertf():
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
+

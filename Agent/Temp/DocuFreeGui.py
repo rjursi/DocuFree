@@ -14,8 +14,6 @@ class DocuFreeWidget(QWidget):
         self.initUI()
         
 
-
-
     def initUI(self):
 
         self.setWindowTitle('My First Application')
@@ -75,6 +73,7 @@ class DocuFreeWidget(QWidget):
     def active(self):
 
         print()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

@@ -4,15 +4,24 @@ from subprocess import Popen, PIPE
 import subprocess
 from win32 import win32pipe, win32file
 from win32api import OutputDebugString
-from CommApiServer import DocuInfoSelect
-from DocuFilter import docufree
+from PyQt5.QtCore import *
+from PyQt5 import QtCore
 
-txt_WhiteListPath = ".\\whiteList.txt"
+
+from DocuListener.CommApiServer import DocuInfoSelect
+from DocuListener.DocuFilter import docufree, alert
+
+
+
+
+txt_WhiteListPath = "whiteList.txt"
 txt_WhiteList = None
 cmd_closeTemp = "CloseTempDocu.exe"
+mainPath = os.path.dirname(os.path.abspath(__file__))
+
 
 def AddFileInfo(filePath):
-   
+
     findFlag = False
     
     
@@ -39,10 +48,13 @@ def AddFileInfo(filePath):
 
 def RunPollingProc():
     
-
+    
     OutputDebugString("Create Or Check DB Exists...")
+    #dllInjectorPath = os.path.join(mainPath, "DllInjector.exe")
     pollingProc = Popen(".\\DllInjector.exe", shell = False)
 
+    # pollingProc = Popen(dllInjectorPath, shell = False)
+    
     pipename = "\\\\.\\pipe\\docufree"
     filename = None
     
@@ -74,26 +86,40 @@ def RunPollingProc():
         AddFileInfo(filename) # 나중에 다시 검사하지 않도록 whitelist 추가
         
         filename = repr("\"" + filename + "\"")
-       
+    
         filename = filename.replace("\\x00","")
         subprocess.run([cmd_closeTemp, filename]) # 열렸던 파일 닫히도록
-
 
         # ApiServer Check
         searchResult = DocuInfoSelect.SetSearchFile(filename)
         
+        print(searchResult)
+        
         if not searchResult:
             # docufree 함수 내 함수 호출
             # filename 값 넘겨주기
-            pass
-        
+
+            docufree_result = docufree.main(filename)
+
+            if docufree_result == 20: # 의심스로운 키워드로 검출이 될 경우
+                
+                alert.alert(filename)
+            else:
+                print(docufree_result)
+                os.startfile(ChangePathFormat(filename))
+                
 
     # win32file.CloseHandle(pipe)
-   
+
+
+def ChangePathFormat(filepath):
+    
+    new_pathFormat = filepath.replace("\\","/").replace("//","/").replace("\'","").replace("\"","")
+    
+    return new_pathFormat
         
 def RunListener():
     RunPollingProc()
 
-def KillListener():
-    pass
-
+if __name__ == "__main__":
+    RunListener()

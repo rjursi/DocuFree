@@ -4,12 +4,18 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 import os
+
+
 class alert(object):
-    def __init__(self, filename, filepath):
+
+
+    def __init__(self, full_filepath):
         
         self.mainPath = os.path.dirname(os.path.abspath(__file__))
-        self.filename = filename
-        self.filepath = filepath
+        
+        
+        self.filename = full_filepath.split("\\")[-1]
+        self.filepath = full_filepath
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -92,10 +98,10 @@ class alert(object):
         self.label.setText(_translate("MainWindow", "해당 문서에서 악성 행위가 확인되었습니다"))
 
 
-def alertf():
+def alertf(full_filepath):
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
-    ui = alert()
+    ui = alert(full_filepath)
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())

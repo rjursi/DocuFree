@@ -194,7 +194,7 @@ HANDLE CreateFileFunctionsHook(
 				OutputDebugString(L"doc!");
 				OutputDebugString(lpFileName);
 
-				// whiteListFlag = FindInWhiteList(lpFileName);
+				whiteListFlag = FindInWhiteList(lpFileName);
 
 
 				if (!whiteListFlag) {
@@ -204,40 +204,41 @@ HANDLE CreateFileFunctionsHook(
 
 					if (ext.compare(L"doc") == 0) {
 
-
-						SendFilePath(lpFileName);
-						UnblockDocuFile(lpFileName);
-						return CreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+						if (str_lpFileName.find(L"~$") == std::wstring::npos) {
+							SendFilePath(lpFileName);
+							UnblockDocuFile(lpFileName);
+							return CreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+						}
 					}
 
 					if (ext.compare(L"docm") == 0) {
 						OutputDebugString(L"Real Docm!");
 						if (str_lpFileName.find(L"~$") != std::wstring::npos) { // 임시 파일이면
 							wcscat_s(drive, L"freeDocuments\\~$docufree.docm");
-
+							
 						}
 						else {
 
 							wcscat_s(drive, L"freeDocuments\\docufree.docm");
-							
+							SendFilePath(lpFileName);
+							UnblockDocuFile(lpFileName);
 						}
 					}
 					else if(ext.compare(L"docx") == 0){
 
 						if (str_lpFileName.find(L"~$") != std::wstring::npos) { // 임시 파일이면
 							wcscat_s(drive, L"freeDocuments\\~$docufree.docx");
-
+							
 						}
 						else {
 
 							wcscat_s(drive, L"freeDocuments\\docufree.docx");
-							
+							SendFilePath(lpFileName);
+							UnblockDocuFile(lpFileName);
 						}
 					}
 					
-					SendFilePath(lpFileName);
-					UnblockDocuFile(lpFileName);
-
+			
 					return CreateFileW(drive, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 
 				}
@@ -251,7 +252,7 @@ HANDLE CreateFileFunctionsHook(
 				OutputDebugString(lpFileName);
 
 
-				// whiteListFlag = FindInWhiteList(lpFileName);
+				whiteListFlag = FindInWhiteList(lpFileName);
 
 				if (!whiteListFlag) {
 					OutputDebugString(L"Not Found In WhiteLIst!!");
@@ -260,11 +261,14 @@ HANDLE CreateFileFunctionsHook(
 
 					if (ext.compare(L"xls") == 0) {
 
-						
-						SendFilePath(lpFileName);
-						UnblockDocuFile(lpFileName);
-						return CreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+						if (str_lpFileName.find(L"~$") == std::wstring::npos) {
+							SendFilePath(lpFileName);
+							UnblockDocuFile(lpFileName);
+							return CreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+						}
 					}
+
+
 					if (ext.compare(L"xlsm") == 0) {
 						if (str_lpFileName.find(L"~$") != std::wstring::npos) {
 							wcscat_s(drive, L"freeDocuments\\~$docufree.xlsm");
@@ -273,7 +277,8 @@ HANDLE CreateFileFunctionsHook(
 						else {
 
 							wcscat_s(drive, L"freeDocuments\\docufree.xlsm");
-							
+							SendFilePath(lpFileName);
+							UnblockDocuFile(lpFileName);
 						}
 					}
 					else if (ext.compare(L"xlsx") == 0) {
@@ -284,12 +289,12 @@ HANDLE CreateFileFunctionsHook(
 						else {
 
 							wcscat_s(drive, L"freeDocuments\\docufree.xlsx");
-							
+							SendFilePath(lpFileName);
+							UnblockDocuFile(lpFileName);
 						}
 					}
 
-					SendFilePath(lpFileName);
-					UnblockDocuFile(lpFileName);
+					
 					
 					return CreateFileW(drive, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 
@@ -300,7 +305,7 @@ HANDLE CreateFileFunctionsHook(
 				OutputDebugString(L"ppt");
 				OutputDebugString(lpFileName);
 
-				// whiteListFlag = FindInWhiteList(lpFileName);
+				whiteListFlag = FindInWhiteList(lpFileName);
 
 
 				if (!whiteListFlag) {
@@ -309,10 +314,12 @@ HANDLE CreateFileFunctionsHook(
 					wcscat_s(drive, chDocPath);
 
 					if (ext.compare(L"ppt") == 0) {
+						if (str_lpFileName.find(L"~$") == std::wstring::npos) {
 
-						SendFilePath(lpFileName);
-						UnblockDocuFile(lpFileName);
-						return CreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+							SendFilePath(lpFileName);
+							UnblockDocuFile(lpFileName);
+							return CreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+						}
 						
 					}
 					if (ext.compare(L"pptm") == 0) {
@@ -323,7 +330,8 @@ HANDLE CreateFileFunctionsHook(
 						else {
 
 							wcscat_s(drive, L"freeDocuments\\docufree.pptm");
-							
+							SendFilePath(lpFileName);
+							UnblockDocuFile(lpFileName);
 						}
 
 					}
@@ -337,13 +345,13 @@ HANDLE CreateFileFunctionsHook(
 						else {
 
 							wcscat_s(drive, L"freeDocuments\\docufree.pptx");
-							
+							SendFilePath(lpFileName);
+							UnblockDocuFile(lpFileName);
 						}
 
 					}
 
-					SendFilePath(lpFileName);
-					UnblockDocuFile(lpFileName);
+					
 
 					return CreateFileW(drive, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 

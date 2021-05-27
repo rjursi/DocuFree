@@ -3,8 +3,21 @@
 import requests
 import hashlib
 
-def SetSearchfile(filepath):
-    # f = open("D:/study/network.txt", 'rb')      #파일위치지정 필요
+
+def ChangePathFormat(filepath):
+    
+    new_pathFormat = filepath.replace("\\","/").replace("//","/").replace("\'","").replace("\"","")
+    
+    return new_pathFormat
+
+
+def SetSearchFile(filepath):
+
+    filepath = ChangePathFormat(filepath)
+    
+    print(filepath)
+
+
     searchFile = open(filepath,'rb')
 
     data = searchFile.read()
@@ -15,28 +28,21 @@ def SetSearchfile(filepath):
     searchFile.close()
     
     result = search(hash)
-    if result == 2:
+    if result:
         return True            # db에 해쉬값이 존재한다
-    elif result == 1:
-        return False
     else:
-        print("error")
+        return False
 
 def search(hash):
-    # hash = file()
-    # print(hash)
-
-
 
     url=f'http://35.233.216.2:5000/search'
     data = {'name' : 'test', 'sha256' : hash['sha256'], 'sha512' : hash['sha512'], 'md5' : hash['md5']}
     res = requests.post(url, json=data)
     flag = res.text
-    if flag == "2":   #이게 db에 값이 있는경우
+    print(flag)
+    if flag == "Found":   #이게 db에 값이 있는경우
         return True
-    elif flag == "1":
+    elif flag == "Not Found":
         return False
-    else:
-        print("error")
 
 

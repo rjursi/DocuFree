@@ -163,7 +163,15 @@ class MacroDocuFree(object):
         flags += 'X' if self.execute else '-'
         return flags
 
+
+def ChangePathFormat(filepath):
+    
+    new_pathFormat = filepath.replace("\\\\","\\").replace("\'","").replace("\"","")
+    
+    return new_pathFormat
+
 # --- MAIN ---------------------------------------------------
+
 
 def main(filepath):
     """
@@ -201,10 +209,15 @@ def main(filepath):
     
     
     # 대개 변수 받아오기
-    (options, args) = parser.parse_args()
+    # (options, args) = parser.parse_args()
     
 
-    
+    options = {'recursive': None, 'zip_password': None, 'zip_fname': '*', 'loglevel': 'warning', 'show_matches': None}
+    print(options)
+    args = []
+    args.append(ChangePathFormat(filepath))
+    print(args)
+
     if len(args) == 0:
         print(' DocuFree %s - https://github.com/rjursi/DocuFree' % __version__)
         print('This is work in progress, please report issues at %s' % URL_ISSUES)
@@ -218,11 +231,13 @@ def main(filepath):
             print(' - %d: %s' % (result.exit_code, result.name))
         sys.exit()
 
+    '''
     print('DocuFree %s - https://github.com/rjursi/DocuFre' % __version__)
     print('과정 중에 일어난, 이슈는 %s에 남겨주세요' % URL_ISSUES)
+    '''
 
     # 로깅 래밸 설정
-    logging.basicConfig(level=LOG_LEVELS[options.loglevel], format="%(levelname)-8s %(messages)s")
+    logging.basicConfig(level=LOG_LEVELS[options['loglevel']], format="%(levelname)-8s %(messages)s")
     
     log.setLevel(logging.NOTSET)
     
@@ -241,7 +256,7 @@ def main(filepath):
 
 
     # args = 리스트 형식으로 받음
-    for container, filename, data in xglob.iter_files(args, recursive=options.recursive, zip_password=options.zip_password, zip_fname=options.zip_fname):
+    for container, filename, data in xglob.iter_files(args, recursive=options['recursive'], zip_password=options['zip_password'], zip_fname=options['zip_fname']):
 
         if container and filename.endswith('/'):
             continue
@@ -336,7 +351,9 @@ def main(filepath):
         print('Exit code: %d - %s' % (exitcode, global_result.name))
         sys.exit(exitcode)
         '''
-    return exitcode
+
+
+    print(exitcode)
 
 
 

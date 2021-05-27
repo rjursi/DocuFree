@@ -165,7 +165,7 @@ class MacroDocuFree(object):
 
 # --- MAIN ---------------------------------------------------
 
-if __name__ == '__main__':
+def main(filepath):
     """
     메인
     """
@@ -182,10 +182,10 @@ if __name__ == '__main__':
 
     """
     parser 라이브러리 사용
-    
-
 
     """
+
+    
     usage = 'usage: docufree [options] <filename> [filename2 ...]'
     parser = optparse.OptionParser(usage=usage)
     parser.add_option("-r", action="store_true", dest="recursive",
@@ -197,11 +197,14 @@ if __name__ == '__main__':
     
     parser.add_option('-m', '--matches', action="store_true", dest="show_matches",
             help="show matches strings.")
-
-
+    
+    
+    
     # 대개 변수 받아오기
     (options, args) = parser.parse_args()
+    
 
+    
     if len(args) == 0:
         print(' DocuFree %s - https://github.com/rjursi/DocuFree' % __version__)
         print('This is work in progress, please report issues at %s' % URL_ISSUES)
@@ -222,15 +225,22 @@ if __name__ == '__main__':
     logging.basicConfig(level=LOG_LEVELS[options.loglevel], format="%(levelname)-8s %(messages)s")
     
     log.setLevel(logging.NOTSET)
-
     
+    # 해당 파일에 대한 의심도 등 상태를 띄워주는 함수
+    
+    '''
     table = tablestream.TableStream(style=tablestream.TableStyleSlim,
             header_row=['Result', 'Flags', 'Type', 'File'],
             column_width=[10, 5, 4, 56])
+    '''
+
+
 
     exitcode = -1
     global_result = None
 
+
+    # args = 리스트 형식으로 받음
     for container, filename, data in xglob.iter_files(args, recursive=options.recursive, zip_password=options.zip_password, zip_fname=options.zip_fname):
 
         if container and filename.endswith('/'):
@@ -240,13 +250,20 @@ if __name__ == '__main__':
 
         if isinstance(data, Exception):
             result = Result_Error
+
+            '''
             table.write_row([result.name, '', '', full_name],
                     colors=[result.color, None, None, None])
             table.write_row(['', '', '', str(data)],
                     colors=[None, None, None, result.color])
+
+            '''
+
+
         else:
             filetype = "???"
 
+            # 위 코드에 따라서 data, container 는 None 이 될 수도 있음 (단일 파일일 경우)
             try:
                 vba_parser = olevba.VBA_Parser(filename=filename, data=data, container=container)
                 filetype = TYPE2TAG[vba_parser.type]
@@ -254,11 +271,15 @@ if __name__ == '__main__':
             except Exception as e:
 
                 result = Result_Error
+                '''
                 table.write_row([result.name, '', filetype, full_name],
                         colors=[None, None, None, result.color])
 
                 table.write_row(['', '', '', str(e)],
                         colors=[None, None, None, result.color])
+                '''
+
+
                 continue
 
             if vba_parser.detect_vba_macros():
@@ -269,10 +290,15 @@ if __name__ == '__main__':
                 except Exception as e:
 
                     result = Result_Error
+
+                    '''
                     table.write_row([result.name, '', TYPE2TAG[vba_parser.type], full_name],
                             colors=[result.color, None, None, None])
                     table.write_row(['', '', '', str(e)],
                             colors=[None, None, None, result.color])
+                    '''
+
+
                     continue
             
                 docufree = MacroDocuFree(vba_code_all_modules)
@@ -281,31 +307,36 @@ if __name__ == '__main__':
 
                 result = Result_Suspicious if docufree.suspicious else Result_MacroOK
 
+                '''
                 table.write_row([result.name, docufree.get_flags(), filetype, full_name],
                         colors=[result.color, None, None, None])
+                
 
                 if docufree.matches and options.show_matches:
                     table.write_row(['', '', '', 'Matches: %r' % docufree.matches])
+                '''
 
             else:
 
                 result = Result_NoMacro
+                '''
                 table.write_row([result.name, '', filetype, full_name],
                         colors=[result.color, None, None, None])
+                '''
+
 
             if result.exit_code > exitcode:
                 global_result = result
-                exitcode = result.exit_code
+                exitcode = global_result.exit_code
 
+
+        '''
         print('')
         print('Flags: A=AutoExec, W=Write, X=Execute')
         print('Exit code: %d - %s' % (exitcode, global_result.name))
         sys.exit(exitcode)
-
-
-if __name__ == '__main__':
-    main()
-
+        '''
+    return exitcode
 
 
 

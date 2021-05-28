@@ -6,6 +6,7 @@
 개발환경: python 3.9.2 64bit
 참고: https://developer.microsoft.com/ko-kr/windows/downloads/windows-10-sdk
 """
+
 # 해야될거
 # save함수 만들어야함(sqllite내용 파일로 저장),db에 있으면 바로 입력하고 없으면 검사 하고 입력, alert.py연결, send.py 연결
 # insert용코드만들기
@@ -13,6 +14,8 @@
 #         cur = con.cursor()
 #         LogData = cur.execute("insert into ~")
 
+
+import subprocess
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 # from CheckFilesFrame import DocFree, Create
@@ -21,21 +24,26 @@ from qt_material import apply_stylesheet
 from CheckFileGui import Create, AppD
 from PyQt5 import sip
 from win10toast import ToastNotifier
+
+
 from PyQt5.QtCore import Qt
-
-from DocuListener import Listener
-
+from subprocess import Popen
 #from LogGUI import LogClassGUI
 import sqlite3
 import time
+import sys
 import os
 from win32api import GetSystemMetrics
+import Listener
+
 
 class AppMainFrame:
     
     def __init__(self):
-        self.mainPath = os.path.dirname(os.path.abspath(__file__))
-
+        self.mainPath = os.path.dirname(sys.executable)
+        
+        
+        
         self.app = QApplication([])
         self.toaster = ToastNotifier()
         self.initUi()
@@ -53,6 +61,10 @@ class AppMainFrame:
     # main page(DocuFree) layout set 
     def mainUi(self):
         self.mainWidget = QWidget()
+
+        self.listenerThread = Listener.DocuListener()
+        self.ListenerThreadStart()
+    
         self.mainWidget.setWindowTitle('DocuFree Application')
 
 
@@ -204,6 +216,17 @@ class AppMainFrame:
     색깔변경, toast 메세지, 실시간 감지 실행, system tray 동기화
     """
 
+    def ListenerThreadStart(self):
+        if not self.listenerThread.isRun:
+            self.listenerThread.isRun = True
+            self.listenerThread.start()
+        
+    def ListenerThreadStop(self):
+        if self.listenerThread.isRun:
+
+            self.listenerThread.isRun = False
+            self.listenerThread.ExitMessageToNamedPipe()
+                        
     def activeRun(self):
         if self.action2.isChecked():
             self.action2.setChecked(False)
@@ -212,6 +235,7 @@ class AppMainFrame:
             self.label.setPixmap(self.realOffImage)
             self.OnOffTextLabel.setText(self.realOffNofiText)
             self.OnOffSupoTextLabel.setText(self.realOffNofiSupoText)
+            self.ListenerThreadStop()
             # self.OnOffSupoTextLabel.setStyleSheet('margin-bottom: 100px; margin-left: 60px;')
             # self.OnOffTextLabel.setStyleSheet('margin-bottom: 20px; margin-left: 45px; padding-bottom:-40px; font-size: 17px; font-weight:1000')
 
@@ -226,6 +250,9 @@ class AppMainFrame:
             self.label.setPixmap(self.realOnImage)
             self.OnOffTextLabel.setText(self.realOnNofiText)
             self.OnOffSupoTextLabel.setText(self.realOnNofiSupoText)
+            self.ListenerThreadStart()
+
+
             # self.OnOffTextLabel.setStyleSheet('margin-bottom: 20px; margin-left: 68px; padding-bottom:-40px; font-size: 17px; font-weight:1000')
             # self.OnOffSupoTextLabel.setStyleSheet('margin-bottom: 100px; margin-left: 100px;')
 
@@ -239,13 +266,12 @@ class AppMainFrame:
         toastHeader = "DocuFree Notification"
         offMessage = "실시간 감지가 꺼졌습니다."
         onMessage = "실시간 감지가 실행되고 있습니다."
-
-
+        
         if self.action2.isChecked():
-            self.toaster.show_toast(toastHeader, onMessage, threaded=True, duration=1.5)
+            self.toaster.show_toast(toastHeader, onMessage, icon_path = '', threaded=True, duration=1.5)
             
         else:
-            self.toaster.show_toast(toastHeader, offMessage, threaded=True, duration=1.5)
+            self.toaster.show_toast(toastHeader, offMessage, icon_path = '', threaded=True, duration=1.5)
 
 
 

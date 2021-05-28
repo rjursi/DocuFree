@@ -1,4 +1,5 @@
 import os
+import sys
 
 from subprocess import Popen, PIPE
 import subprocess
@@ -13,113 +14,132 @@ from DocuListener.DocuFilter import docufree, alert
 
 
 
+class DocuListener(QThread):
+    
+    
+    def __init__(self):
+        super().__init__()
+        self.isRun = False
 
-txt_WhiteListPath = "whiteList.txt"
-txt_WhiteList = None
-cmd_closeTemp = "CloseTempDocu.exe"
-mainPath = os.path.dirname(os.path.abspath(__file__))
+        self.txt_WhiteListPath = "whiteList.txt"
+        self.txt_WhiteList = None
+        self.cmd_closeTemp = "CloseTempDocu.exe"
+        self.mainPath = os.path.dirname(sys.executable)
 
-
-def AddFileInfo(filePath):
-
-    findFlag = False
-    
-    
-    if not os.path.exists(txt_WhiteListPath):
-        # whiteList 텍스트 파일 존재 여부 확인
-        txt_WhiteList = open(txt_WhiteListPath,'r+')
-    else:
-        txt_WhiteList = open(txt_WhiteListPath,'a+')
-    
-    lines = txt_WhiteList.readlines();
-    
-    for line in lines:
-        if filePath in line:
-            findFlag = True
-            break
-
-    if not findFlag:
-        txt_WhiteList.write("{0}\n".format(filePath))
-    
-    txt_WhiteList.close()
-    txt_WhiteList = None
-    
+    def ExitMessageToNamedPipe(self):
+        pipename = "\\\\.\\pipe\\docufree"
+        pipe_handle = win32file.CreateFile(pipename, win32file.GENERIC_WRITE, 0, None, win32file.OPEN_EXISTING, 0, None)
 
 
-def RunPollingProc():
-    
-    
-    OutputDebugString("Create Or Check DB Exists...")
-    #dllInjectorPath = os.path.join(mainPath, "DllInjector.exe")
-    pollingProc = Popen(".\\DllInjector.exe", shell = False)
-
-    # pollingProc = Popen(dllInjectorPath, shell = False)
-    
-    pipename = "\\\\.\\pipe\\docufree"
-    filename = None
-    
-    # 자식 프로세스 (DllInjector) 와 파일명을 추려내기 위한 Pipe 생성
-    pipe = win32pipe.CreateNamedPipe(
-        pipename,
-        win32pipe.PIPE_ACCESS_INBOUND,
-        win32pipe.PIPE_TYPE_MESSAGE | win32pipe.PIPE_READMODE_MESSAGE | win32pipe.PIPE_WAIT,
-        1,
-        65536, 65536,
-        20000,
-        None
-    )
-
-    while True:
+        err, bytes_written = win32file.WriteFile(pipe_handle, bytes("exit", 'utf-16'))
         
-        OutputDebugString("start pipe server...")
-        win32pipe.ConnectNamedPipe(pipe, );
+        win32file.CloseHandle(pipe_handle)
 
-        OutputDebugString("client Connected")
-
-        result, data = win32file.ReadFile(pipe, 64*1024)
-        win32pipe.DisconnectNamedPipe(pipe)
-        OutputDebugString("file readed!!")
-        print(data)
-        print(data.decode('utf-16'))
-        filename = data.decode('utf-16');
+    def run(self):
         
-        AddFileInfo(filename) # 나중에 다시 검사하지 않도록 whitelist 추가
         
-        filename = repr("\"" + filename + "\"")
-    
-        filename = filename.replace("\\x00","")
-        subprocess.run([cmd_closeTemp, filename]) # 열렸던 파일 닫히도록
-
-        # ApiServer Check
-        searchResult = DocuInfoSelect.SetSearchFile(filename)
+        OutputDebugString("Create Or Check DB Exists...")
         
-        print(searchResult)
+        pollingProc = Popen(".\\DllInjector.exe", shell = False)
+
+        # pollingProc = Popen(dllInjectorPath, shell = False)
         
-        if not searchResult:
-            # docufree 함수 내 함수 호출
-            # filename 값 넘겨주기
+        pipename = "\\\\.\\pipe\\docufree"
+        filename = None
+        
+        # 자식 프로세스 (DllInjector) 와 파일명을 추려내기 위한 Pipe 생성
+        self.pipe = win32pipe.CreateNamedPipe(
+            pipename,
+            win32pipe.PIPE_ACCESS_INBOUND,
+            win32pipe.PIPE_TYPE_MESSAGE | win32pipe.PIPE_READMODE_MESSAGE | win32pipe.PIPE_WAIT,
+            1,
+            65536, 65536,
+            20000,
+            None
+        )
 
-            docufree_result = docufree.main(filename)
+        while self.isRun:
+            
+            OutputDebugString("start pipe server...")
+            win32pipe.ConnectNamedPipe(self.pipe, );
 
-            if docufree_result == 20: # 의심스로운 키워드로 검출이 될 경우
+            OutputDebugString("client Connected")
+
+            result, data = win32file.ReadFile(self.pipe, 64*1024)
+
+            win32pipe.DisconnectNamedPipe(self.pipe)
+            OutputDebugString("file readed!!")
+            print(data)
+            print(data.decode('utf-16'))
+            filename = data.decode('utf-16');
+            print(filename)
+
+
+            if filename not in "exit":
+
+                filename = repr("\"" + filename + "\"")
+            
+                filename = filename.replace("\\x00","")
+                subprocess.run([self.cmd_closeTemp, filename]) # 열렸던 파일 닫히도록
+
+                # ApiServer Check
+                searchResult = DocuInfoSelect.SetSearchFile(filename)
                 
-                alert.alert(filename)
-            else:
-                print(docufree_result)
-                os.startfile(ChangePathFormat(filename))
+                print(searchResult)
                 
+                if not searchResult:
+                    # docufree 함수 내 함수 호출
+                    # filename 값 넘겨주기
 
-    # win32file.CloseHandle(pipe)
+                    docufree_result = docufree.main(filename)
+                    
 
 
-def ChangePathFormat(filepath):
+                    if docufree_result == 20: # 의심스로운 키워드로 검출이 될 경우
+                        alert.alertf(filename)
+                    else:
+                        print(docufree_result)
+                        self.AddFileInfo(self.ChangePathFormat_whiteList(filename)) # 나중에 다시 검사하지 않도록 whitelist 추가
+                        os.startfile(self.ChangePathFormat(filename))
+                    
+
+        win32file.CloseHandle(self.pipe)
+        pollingProc.terminate()
     
-    new_pathFormat = filepath.replace("\\","/").replace("//","/").replace("\'","").replace("\"","")
-    
-    return new_pathFormat
+
+    def ChangePathFormat_whiteList(self, filepath):
+        new_pathFormat = filepath.replace("\\\\","\\").replace("//","/").replace("\'","").replace("\"","")
         
-def RunListener():
-    RunPollingProc()
+        return new_pathFormat
 
-if __name__ == "__main__":
-    RunListener()
+
+    def ChangePathFormat(self, filepath):
+        
+        new_pathFormat = filepath.replace("\\","/").replace("//","/").replace("\'","").replace("\"","")
+        
+        return new_pathFormat
+
+    def AddFileInfo(self, filePath):
+    
+        findFlag = False
+        
+        
+        if not os.path.exists(self.txt_WhiteListPath):
+            # whiteList 텍스트 파일 존재 여부 확인
+            self.txt_WhiteList = open(self.txt_WhiteListPath,'r+')
+        else:
+            self.txt_WhiteList = open(self.txt_WhiteListPath,'a+')
+        
+        lines = self.txt_WhiteList.readlines();
+        
+        for line in lines:
+            if filePath in line:
+                findFlag = True
+                break
+
+        if not findFlag:
+            self.txt_WhiteList.write("{0}\n".format(filePath))
+        
+        self.txt_WhiteList.close()
+        self.txt_WhiteList = None
+        

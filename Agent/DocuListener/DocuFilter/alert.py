@@ -11,12 +11,13 @@ class alert(object):
 
     def __init__(self, full_filepath):
         
-        self.mainPath = os.path.dirname(os.path.abspath(__file__))
+        
+        self.mainPath = os.path.dirname(sys.executable)
         
         
         self.filename = full_filepath.split("\\")[-1]
-        self.filepath = full_filepath
-
+        self.filename.replace("\"","")
+    
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(451, 218)
@@ -57,6 +58,9 @@ class alert(object):
         self.label_3.setSizePolicy(sizePolicy)
         self.label_3.setText("")
         self.label_3.setPixmap(QtGui.QPixmap(os.path.join(self.mainPath, "images/alert.png")))    #이미지
+        print(os.path.join(self.mainPath, "images/alert.png"))
+
+
         self.label_3.setScaledContents(True)
         self.label_3.setObjectName("label_3")
         self.fillename = QtWidgets.QLabel(self.centralwidget)
@@ -85,7 +89,7 @@ class alert(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
-        self.pushButton.clicked.connect(quit)    #클릭시 연결되는부분 click은 함수
+        self.pushButton.clicked.connect(MainWindow.close)    # 클릭시 연결되는부분 click은 함수
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -94,15 +98,17 @@ class alert(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.pushButton.setText(_translate("MainWindow", "확인"))         #클릭버튼
         self.label_2.setText(_translate("MainWindow", "해당파일이 삭제되었습니다"))
-        self.fillename.setText(_translate("MainWindow", self.filename+'.'+self.filepath))    #파일이름변수로 교체해야됨
+        self.fillename.setText(_translate("MainWindow", self.filename))    #파일이름변수로 교체해야됨
         self.label.setText(_translate("MainWindow", "해당 문서에서 악성 행위가 확인되었습니다"))
 
 
 def alertf(full_filepath):
+
+
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()
     ui = alert(full_filepath)
     ui.setupUi(MainWindow)
     MainWindow.show()
-    sys.exit(app.exec_())
+    app.exec_()
 

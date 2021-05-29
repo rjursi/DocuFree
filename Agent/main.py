@@ -21,11 +21,11 @@ from PyQt5.QtWidgets import *
 # from CheckFilesFrame import DocFree, Create
 
 from qt_material import apply_stylesheet
-from CheckFileGui import Create, AppD
 from PyQt5 import sip
 from win10toast import ToastNotifier
 
 
+from CheckFileGui import AppD
 from PyQt5.QtCore import Qt
 from subprocess import Popen
 #from LogGUI import LogClassGUI
@@ -41,8 +41,6 @@ class AppMainFrame:
     
     def __init__(self):
         self.mainPath = os.path.dirname(sys.executable)
-        
-        
         
         self.app = QApplication([])
         self.toaster = ToastNotifier()
@@ -62,6 +60,7 @@ class AppMainFrame:
     def mainUi(self):
         self.mainWidget = QWidget()
 
+        # 실시간 검사 스레드 생성 및 켜지자마자 바로 실행
         self.listenerThread = Listener.DocuListener()
         self.ListenerThreadStart()
     
@@ -115,6 +114,9 @@ class AppMainFrame:
         QPushButton{height: 170px; width:200px; background-color:#bef67a; color:#232629; font-size:20px; font-weight:bold; padding: 0px; margin-bottom: 100px; border: 0px solid;}
         QPushButton:hover { background-color: #d9f0be;}
         ''')
+
+
+        # 파일 검사 버튼 이벤트 핸들러 연결
         filescanButton.clicked.connect(AppD)
 
 
@@ -267,6 +269,9 @@ class AppMainFrame:
         offMessage = "실시간 감지가 꺼졌습니다."
         onMessage = "실시간 감지가 실행되고 있습니다."
         
+        # pyinstaller 로 빌드하면서 icon_path 관련 이슈 발생, 차후 수정
+
+
         if self.action2.isChecked():
             self.toaster.show_toast(toastHeader, onMessage, icon_path = '', threaded=True, duration=1.5)
             
@@ -360,7 +365,7 @@ class AppMainFrame:
         # 파일 검사 실행매뉴 생성
         fileAnalysisName = "파일 검사"
         action1 = QAction(fileAnalysisName)
-        A = action1.triggered.connect(AppD)
+        action1.triggered.connect(AppD)
 
         # 실시간 검사 매뉴 체크 생성
         fileRealTimeName = "실시간검사"

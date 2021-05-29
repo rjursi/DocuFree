@@ -9,9 +9,9 @@ from PyQt5.QtCore import *
 from PyQt5 import QtCore
 
 
-from DocuListener.CommApiServer import DocuInfoSelect
+from DocuListener.CommApiServer import DocuInfoSelect, DocuInfoAdd
 from DocuListener.DocuFilter import docufree, alert
-
+import CheckLogUpdater
 
 
 class DocuListener(QThread):
@@ -87,20 +87,40 @@ class DocuListener(QThread):
                 
                 print(searchResult)
                 
+                docufree_result = None
                 if not searchResult:
                     # docufree 함수 내 함수 호출
                     # filename 값 넘겨주기
 
+
                     docufree_result = docufree.main(filename)
                     
+                    docufree_result.exit_code = 20
+
+                    
+                    if docufree_result.exit_code == 20: # 의심스로운 키워드로 검출이 될 경우
+                        '''
+                        self.AlertObj = alert.alertf(filename)
+                        self.AlertObj.MainWindow.show()
+                        '''
 
 
-                    if docufree_result == 20: # 의심스로운 키워드로 검출이 될 경우
-                        alert.alertf(filename)
+
+
+                        insert_result = DocuInfoAdd.add(filename)
+
+                        if insert_result: 
+                            # os.remove(filename)
+                            pass
+                        else:
+                            print("Info Insert Error!!")
                     else:
-                        print(docufree_result)
+                        # print(docufree_result)
                         self.AddFileInfo(self.ChangePathFormat_whiteList(filename)) # 나중에 다시 검사하지 않도록 whitelist 추가
                         os.startfile(self.ChangePathFormat(filename))
+                
+
+                CheckLogUpdater.InsertLog(self.ChangePathFormat(filename), docufree_result.name)
                     
 
         win32file.CloseHandle(self.pipe)

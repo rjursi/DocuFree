@@ -18,13 +18,14 @@ def SetSearchFile(filepath):
     print(filepath)
 
 
-    searchFile = open(filepath,'rb')
+    with open(filepath,'rb') as searchFile:
 
-    data = searchFile.read()
-    sha256 = hashlib.sha256(data).hexdigest()
-    sha512 = hashlib.sha512(data).hexdigest()
-    md5 = hashlib.md5(data).hexdigest()
-    hash = {'sha256': sha256,'sha512': sha512, 'md5':md5}
+        data = searchFile.read()
+        sha256 = hashlib.sha256(data).hexdigest()
+        sha512 = hashlib.sha512(data).hexdigest()
+        md5 = hashlib.md5(data).hexdigest()
+        hash = {'sha256': sha256,'sha512': sha512, 'md5':md5}
+
     searchFile.close()
     
     result = search(hash)

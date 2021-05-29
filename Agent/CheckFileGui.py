@@ -7,16 +7,21 @@
 참고: https://developer.microsoft.com/ko-kr/windows/downloads/windows-10-sdk
 """
 
-import sys
+import sys, os
 import time
-import PyQt5.QtCore
 
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QProgressBar, QCheckBox
+from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtWidgets import *
 from PyQt5.Qt import *
+
 from PyQt5.QtCore import QBasicTimer
 from qt_material import apply_stylesheet
 from PyQt5.QtGui import *
 from win32api import GetSystemMetrics
+
+from DocuListener.DocuFilter import docufree, alert
+from DocuListener.CommApiServer import DocuInfoAdd
+import CheckLogUpdater
 
 
 class AppD(QWidget):
@@ -31,43 +36,94 @@ class AppD(QWidget):
         
     
     def initUI(self):
+
+
+        '''
+        내부 함수 영역
+        '''
+
+        def AddFunc():
+            self.files = self.openFileNamesDialog()
+            if len(self.files) != 0:
+                for index in range(len(self.files)):
+                    print(self.files[index])
+                    item = QListWidgetItem(self.files[index])
+                    item.setCheckState(QtCore.Qt.Unchecked)
+                    self.listWidget.addItem(item)
+
+        def RemoveFunc():
+        
+            count = 0
+
+            for index in range(self.listWidget.count()):
+                if self.listWidget.item(index).checkState() == QtCore.Qt.Checked:
+                    count += 1
+
+            while count:
+                for index in range(self.listWidget.count()):
+                    if self.listWidget.item(index).checkState() == QtCore.Qt.Checked:
+                        self.listWidget.takeItem(index)
+                        del self.files[index]
+                        count -= 1
+                        print(count)
+                        break
+
+        # progressbar 값 변경시키는 것 
+        
+        def RunFunc():
+
+            prog_stat = 0
+            files_count = len(self.files)
+            for index in range(files_count):
+                
+                prog_stat += 100 // files_count
+
+                self.phar.setValue(index) 
+
+                docufree_result = docufree.main(self.files[index])
+                
+
+                # 임시 악성파일 식별 시나리오를 위해 조작
+                docufree_result.exit_code = 20
+                
+                if docufree_result.exit_code == 20:
+                    self.AlertObj = alert.alertf(self.files[index])
+                    self.AlertObj.MainWindow.show()
+
+                    info_result = DocuInfoAdd.add(self.files[index])
+                    
+                    if info_result:
+                        
+                        # os.remove(self.files[index]) # 파일 지우는 명령어
+                        pass
+
+                    
+                    else:
+                        print("Info INsert Error!!")
+
+                CheckLogUpdater.InsertLog(self.files[index], docufree_result.name)
+
+                time.sleep(0.05)
+
+            self.phar.setValue(100)
+
+
+
+        ''' 
+        내부 함수 영역 끝
+        '''
+
+        '''
+        GUI 구성 시작
+        '''
+
+
         self.setWindowTitle(self.title)
         if GetSystemMetrics(0) >= 1600 and GetSystemMetrics(1) >= 900:
             self.setGeometry(700, 300, 400 ,300)
         elif GetSystemMetrics(0) < 1600 and GetSystemMetrics(1) < 900:
             self.setGeometry(400, 200, 350, 350)
-        def AddFunc():
-            files = self.openFileNamesDialog()
-            if len(files) != 0:
-                for i in range(len(files)):
-                    print(files[i])
-                    item = QListWidgetItem(files[i])
-                    item.setCheckState(QtCore.Qt.Unchecked)
-                    self.listWidget.addItem(item)
 
-        def RemoveFunc():
-            
-            A = self.listWidget.count()
-            count = 0
-
-            for i in range(self.listWidget.count()):
-                if self.listWidget.item(i).checkState() == QtCore.Qt.Checked:
-                    count += 1
-
-            while count:
-                for i in range(self.listWidget.count()):
-                    if self.listWidget.item(i).checkState() == QtCore.Qt.Checked:
-                        self.listWidget.takeItem(i)
-                        count -= 1
-                        print(count)
-                        break
-
-        def RunFunc():
-            for i in range(1, 101):
-                self.phar.setValue(i)
-                time.sleep(0.05)
-
-            return None
 
         font = QFont()
         font.setFamily("Verdana")
@@ -125,9 +181,20 @@ class AppD(QWidget):
         mainLayout.addLayout(buttonLayout2)
         self.show()
 
-    
+        '''
+        GUI 구성 끝 
+
+        '''
+
+       
+
+    # 파일 검사에 따른 timerEvent, Progressbar 제어
     def timerEvent(self, event):
         pass
+
+
+    # openFilesDialog 통한 파일 이름 반환
+    # 파일명을 리스트 형식으로 반환
 
     def openFileNamesDialog(self):
         options = QtWidgets.QFileDialog.Options()
@@ -137,6 +204,7 @@ class AppD(QWidget):
         return files
         
 
+'''
 def Create():
 
     extra = {
@@ -154,5 +222,6 @@ def Create():
     apply_stylesheet(app, theme="dark_lightgreen.xml", extra=extra)
 
     ex = AppD()
-    sys.exit(app.exec_())
+    app.exec_()
+'''
 

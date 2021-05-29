@@ -1,32 +1,37 @@
 # alert 창 띄워주는 클래스
 # 객체 생성자로 파일명과 파일경로 보내주면 됨
 
+from PyQt5.QtWidgets import *
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import *
+
 import sys
 import os
 
 
-class alert(object):
-
+class alert():
 
     def __init__(self, full_filepath):
-        
-        
+        super().__init__()
         self.mainPath = os.path.dirname(sys.executable)
-        
-        
+    
         self.filename = full_filepath.split("\\")[-1]
         self.filename.replace("\"","")
-    
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(451, 218)
+        
+        self.setupUi()
+
+
+    def setupUi(self):
+        self.MainWindow = QtWidgets.QMainWindow()
+
+        self.MainWindow.setObjectName("MainWindow")
+        self.MainWindow.resize(451, 218)
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(10)
-        MainWindow.setFont(font)
-        MainWindow.setStyleSheet("background-color:rgb(56, 61, 67)")
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.MainWindow.setFont(font)
+        self.MainWindow.setStyleSheet("background-color:rgb(56, 61, 67)")
+        self.centralwidget = QtWidgets.QWidget(self.MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton.setGeometry(QtCore.QRect(180, 140, 231, 51))
@@ -84,31 +89,37 @@ class alert(object):
         self.label.setStyleSheet("color:rgb(255, 255, 255)")
         self.label.setAlignment(QtCore.Qt.AlignCenter)
         self.label.setObjectName("label")
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.MainWindow.setCentralWidget(self.centralwidget)
+        self.statusbar = QtWidgets.QStatusBar(self.MainWindow)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        self.MainWindow.setStatusBar(self.statusbar)
 
-        self.pushButton.clicked.connect(MainWindow.close)    # 클릭시 연결되는부분 click은 함수
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.pushButton.clicked.connect(self.MainWindow.close)    # 클릭시 연결되는부분 click은 함수
+        self.retranslateUi()
+        QtCore.QMetaObject.connectSlotsByName(self.MainWindow)
 
-    def retranslateUi(self, MainWindow):
+        # self.MainWindow.show()
+    
+
+    def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        self.MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
         self.pushButton.setText(_translate("MainWindow", "확인"))         #클릭버튼
         self.label_2.setText(_translate("MainWindow", "해당파일이 삭제되었습니다"))
         self.fillename.setText(_translate("MainWindow", self.filename))    #파일이름변수로 교체해야됨
         self.label.setText(_translate("MainWindow", "해당 문서에서 악성 행위가 확인되었습니다"))
 
+    
+
+
 
 def alertf(full_filepath):
 
 
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = alert(full_filepath)
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    app.exec_()
+    # app = QtWidgets.QApplication(sys.argv)
 
+    
+    ui = alert(full_filepath)
+    
+    return ui
+    # app.exec_()

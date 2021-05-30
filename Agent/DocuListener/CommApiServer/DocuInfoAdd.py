@@ -27,7 +27,7 @@ def add(filepath):
 
     searchFile.close()
 
-    filename = filepath.split("\\")[-1]
+    filename = filepath.split("/")[-1]
     ext = filename.split(".")[-1]
 
     data = {'name' : filename, 'sha256' : hash['sha256'], 'sha512' : hash['sha512'], 'md5' : hash['md5'], 'extension' : ext}

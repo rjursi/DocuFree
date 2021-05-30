@@ -20,7 +20,6 @@ class alert():
         
         self.setupUi()
 
-
     def setupUi(self):
         self.MainWindow = QtWidgets.QMainWindow()
 
@@ -98,8 +97,6 @@ class alert():
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self.MainWindow)
 
-        # self.MainWindow.show()
-    
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
@@ -116,10 +113,7 @@ class alert():
 def alertf(full_filepath):
 
 
-    # app = QtWidgets.QApplication(sys.argv)
-
-    
     ui = alert(full_filepath)
     
     return ui
-    # app.exec_()
+

@@ -10,16 +10,20 @@ from PyQt5 import QtCore
 
 
 from DocuListener.CommApiServer import DocuInfoSelect, DocuInfoAdd
-from DocuListener.DocuFilter import docufree, alert
+from DocuListener.DocuFilter import docufree
 import CheckLogUpdater
 
 
 class DocuListener(QThread):
     
+    # 팝업창을 main 윈도우에서 띄울수 있도록 하는 이벤트 핸들러
+    threadEvent = QtCore.pyqtSignal(str)
     
     def __init__(self):
         super().__init__()
         self.isRun = False
+        
+
 
         self.txt_WhiteListPath = "whiteList.txt"
         self.txt_WhiteList = None
@@ -88,23 +92,20 @@ class DocuListener(QThread):
                 print(searchResult)
                 
                 docufree_result = None
+
+                # API Server 를 통해서 검색 결과가 없을 경우에만
                 if not searchResult:
-                    # docufree 함수 내 함수 호출
-                    # filename 값 넘겨주기
-
-
+                
                     docufree_result = docufree.main(filename)
                     
+                    # 테스트 위한 
                     docufree_result.exit_code = 20
-
+                   
                     
                     if docufree_result.exit_code == 20: # 의심스로운 키워드로 검출이 될 경우
-                        '''
-                        self.AlertObj = alert.alertf(filename)
-                        self.AlertObj.MainWindow.show()
-                        '''
-
-
+                        
+                        # 알림창을 띄우라는 신호를 보냄
+                        self.threadEvent.emit(filename)
 
 
                         insert_result = DocuInfoAdd.add(filename)
@@ -115,12 +116,12 @@ class DocuListener(QThread):
                         else:
                             print("Info Insert Error!!")
                     else:
-                        # print(docufree_result)
+                        
                         self.AddFileInfo(self.ChangePathFormat_whiteList(filename)) # 나중에 다시 검사하지 않도록 whitelist 추가
                         os.startfile(self.ChangePathFormat(filename))
                 
-
-                CheckLogUpdater.InsertLog(self.ChangePathFormat(filename), docufree_result.name)
+                   
+                    CheckLogUpdater.InsertLog(self.ChangePathFormat(filename), docufree_result.name)
                     
 
         win32file.CloseHandle(self.pipe)

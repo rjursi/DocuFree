@@ -2,6 +2,8 @@ import sqlite3
 import os, sys
 import datetime
 
+
+
 def InsertLog(filepath, detect_result):
 
         sql_insert = ''' INSERT INTO datelog(log_text, datect, DateInserted) 

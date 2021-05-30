@@ -16,6 +16,7 @@
 
 
 import subprocess
+from PyQt5 import QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 # from CheckFilesFrame import DocFree, Create
@@ -23,10 +24,10 @@ from PyQt5.QtWidgets import *
 from qt_material import apply_stylesheet
 from PyQt5 import sip
 from win10toast import ToastNotifier
-
+from DocuListener.DocuFilter import alert
 
 from CheckFileGui import AppD
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import *
 from subprocess import Popen
 #from LogGUI import LogClassGUI
 import sqlite3
@@ -41,7 +42,9 @@ class AppMainFrame:
     
     def __init__(self):
         self.mainPath = os.path.dirname(sys.executable)
+
         
+
         self.app = QApplication([])
         self.toaster = ToastNotifier()
         self.initUi()
@@ -50,6 +53,13 @@ class AppMainFrame:
         
         # self.mainUi()
         # run()
+
+        # 실시간 검사 스레드 바로 시작
+
+        self.listenerThread = Listener.DocuListener()
+        self.listenerThread.threadEvent.connect(self.threadEventHandler)
+        self.ListenerThreadStart()
+
         self.SystemTray()
 
 
@@ -61,11 +71,9 @@ class AppMainFrame:
         self.mainWidget = QWidget()
 
         # 실시간 검사 스레드 생성 및 켜지자마자 바로 실행
-        self.listenerThread = Listener.DocuListener()
-        self.ListenerThreadStart()
-    
+            
         self.mainWidget.setWindowTitle('DocuFree Application')
-
+        self.mainWidget.setFixedSize(640, 350)
 
         # print(self.mainWidget.frameGeometry().height())
     
@@ -218,6 +226,12 @@ class AppMainFrame:
     색깔변경, toast 메세지, 실시간 감지 실행, system tray 동기화
     """
 
+    
+    def threadEventHandler(self, full_path):
+        self.alertWindow = alert.alertf(full_path)
+        self.alertWindow.MainWindow.show()
+
+
     def ListenerThreadStart(self):
         if not self.listenerThread.isRun:
             self.listenerThread.isRun = True
@@ -296,10 +310,18 @@ class AppMainFrame:
         #     self.logGUI.resize(500, 400)
 
         # 테이블 위잿 설정        
+        self.logGUI.setFixedSize(750, 400)
         tableWidget = QTableWidget()
         tableWidget.setRowCount(12)
         tableWidget.setColumnCount(4)
         tableWidget.setHorizontalHeaderLabels(["id", "로그", "유형", "시간"])
+        
+        header = tableWidget.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
+
         LogData = self.ReturnSqlData()
 
         for idx, val in enumerate(LogData):

@@ -65,7 +65,7 @@ class AppD(QWidget):
                         self.listWidget.takeItem(index)
                         del self.files[index]
                         count -= 1
-                        print(count)
+                        
                         break
 
         # progressbar 값 변경시키는 것 

@@ -91,7 +91,6 @@ class DocuListener(QThread):
                 
                 print(searchResult)
                 
-                docufree_result = None
 
                 # API Server 를 통해서 검색 결과가 없을 경우에만
                 if not searchResult:
@@ -115,6 +114,8 @@ class DocuListener(QThread):
                         self.AddFileInfo(self.ChangePathFormat_whiteList(filename)) # 나중에 다시 검사하지 않도록 whitelist 추가
                         os.startfile(self.ChangePathFormat(filename))
                 
+                    CheckLogUpdater.InsertLog(self.ChangePathFormat(filename), docufree_result.name)
+
 
                 # 서버 데이터베이스 단에서 확인이 이루어지는 경우
                 else:
@@ -122,7 +123,7 @@ class DocuListener(QThread):
                     os.remove(self.ChangePathFormat(filename))
 
 
-                CheckLogUpdater.InsertLog(self.ChangePathFormat(filename), docufree_result.name)
+                
                     
 
         win32file.CloseHandle(self.pipe)

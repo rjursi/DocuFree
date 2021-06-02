@@ -7,6 +7,7 @@
 int _tmain(int argc, TCHAR* argv[]) {
 	DllInjector *dlIInjector = new DllInjector();
 	
+	
 	dlIInjector->InjectorStart();
 
 

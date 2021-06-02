@@ -98,21 +98,16 @@ class DocuListener(QThread):
                 
                     docufree_result = docufree.main(filename)
                     
-                    # 테스트 위한 
-                    docufree_result.exit_code = 20
-                   
-                    
                     if docufree_result.exit_code == 20: # 의심스로운 키워드로 검출이 될 경우
                         
                         # 알림창을 띄우라는 신호를 보냄
                         self.threadEvent.emit(filename)
 
-
                         insert_result = DocuInfoAdd.add(filename)
 
                         if insert_result: 
-                            # os.remove(filename)
-                            pass
+                            os.remove(filename)
+                            
                         else:
                             print("Info Insert Error!!")
                     else:
@@ -120,8 +115,14 @@ class DocuListener(QThread):
                         self.AddFileInfo(self.ChangePathFormat_whiteList(filename)) # 나중에 다시 검사하지 않도록 whitelist 추가
                         os.startfile(self.ChangePathFormat(filename))
                 
-                   
-                    CheckLogUpdater.InsertLog(self.ChangePathFormat(filename), docufree_result.name)
+
+                # 서버 데이터베이스 단에서 확인이 이루어지는 경우
+                else:
+                    self.threadEvent.emit(self.ChangePathFormat(filename))
+                    os.remove(self.ChangePathFormat(filename))
+
+
+                CheckLogUpdater.InsertLog(self.ChangePathFormat(filename), docufree_result.name)
                     
 
         win32file.CloseHandle(self.pipe)

@@ -23,8 +23,6 @@ def add(filepath):
         md5 = hashlib.md5(data).hexdigest()
         hash = {'sha256': sha256,'sha512': sha512, 'md5':md5}
 
-
-
     searchFile.close()
 
     filename = filepath.split("/")[-1]

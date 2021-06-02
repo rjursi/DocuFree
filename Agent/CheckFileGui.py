@@ -29,6 +29,7 @@ class AppD(QWidget):
         super().__init__()
         self.title = 'DocuFree'
         self.listWidget = QListWidget()
+        self.statusInfo = QLabel()
         self.phar = QProgressBar()
         self.timer = QBasicTimer()
         self.step = 0
@@ -72,6 +73,7 @@ class AppD(QWidget):
         
         def RunFunc():
 
+            mal_count = 0
             prog_stat = 0
             files_count = len(self.files)
             for index in range(files_count):
@@ -82,22 +84,19 @@ class AppD(QWidget):
 
                 docufree_result = docufree.main(self.files[index])
                 
-
-                # 임시 악성파일 식별 시나리오를 위해 조작
-                docufree_result.exit_code = 20
-                
                 if docufree_result.exit_code == 20:
+                    '''
                     self.AlertObj = alert.alertf(self.files[index])
                     self.AlertObj.MainWindow.show()
+                    '''
 
+                    mal_count += 1
                     info_result = DocuInfoAdd.add(self.files[index])
                     
                     if info_result:
+                        self.listWidget.takeItem(index)
+                        os.remove(self.files[index]) # 파일 지우는 명령어
                         
-                        # os.remove(self.files[index]) # 파일 지우는 명령어
-                        pass
-
-                    
                     else:
                         print("Info INsert Error!!")
 
@@ -106,9 +105,13 @@ class AppD(QWidget):
                 time.sleep(0.05)
 
             self.phar.setValue(100)
+            if mal_count == 0:
+                
+                self.statusInfo.setText("검사가 완료되었습니다. 의심스러운 문서가 없습니다.")
+            else:
+                self.statusInfo.setText(mal_count + "건의 의심스러운 문서가 발견되었고 조치되었습니다.")
 
-
-
+    
         ''' 
         내부 함수 영역 끝
         '''
@@ -134,7 +137,9 @@ class AppD(QWidget):
         ProgressLayout = QHBoxLayout()
         ProgressLayout.addWidget(self.phar)
         
-
+        StatusLayout = QHBoxLayout()
+        StatusLayout.addWidget(self.statusInfo)
+        
         #Create add Button
         AddButton = QPushButton("파일추가")
         AddButton.setFont(font)
@@ -177,6 +182,7 @@ class AppD(QWidget):
         self.setLayout(mainLayout)
         mainLayout.addLayout(horizontalLayout)
         mainLayout.addLayout(ProgressLayout)
+        mainLayout.addLayout(StatusLayout)
         mainLayout.addSpacing(12)
         mainLayout.addLayout(buttonLayout2)
         self.show()
@@ -203,25 +209,3 @@ class AppD(QWidget):
 
         return files
         
-
-'''
-def Create():
-
-    extra = {
-
-    # Button colors
-    'danger': '#dc3545',
-    'warning': '#ffc107',
-    'success': '#17a2b8',
-    # Font
-    'font-family': 'Roboto',
-    'font-size': '5px',
-    }   
-
-    app = QApplication(sys.argv)
-    apply_stylesheet(app, theme="dark_lightgreen.xml", extra=extra)
-
-    ex = AppD()
-    app.exec_()
-'''
-

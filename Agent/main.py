@@ -43,23 +43,19 @@ class AppMainFrame:
     def __init__(self):
         self.mainPath = os.path.dirname(sys.executable)
 
-        
-
         self.app = QApplication([])
         self.toaster = ToastNotifier()
+        self.isRealTimeInsf_running = True
         self.initUi()
 
     def initUi(self):
         
-        # self.mainUi()
-        # run()
-
         # 실시간 검사 스레드 바로 시작
 
         self.listenerThread = Listener.DocuListener()
         self.listenerThread.threadEvent.connect(self.threadEventHandler)
         self.ListenerThreadStart()
-
+        self.mainUi()
         self.SystemTray()
 
 
@@ -68,6 +64,7 @@ class AppMainFrame:
 
     # main page(DocuFree) layout set 
     def mainUi(self):
+
         self.mainWidget = QWidget()
 
         # 실시간 검사 스레드 생성 및 켜지자마자 바로 실행
@@ -75,24 +72,10 @@ class AppMainFrame:
         self.mainWidget.setWindowTitle('DocuFree Application')
         self.mainWidget.setFixedSize(640, 350)
 
-        # print(self.mainWidget.frameGeometry().height())
-    
-        # self.mainWidget.setFixedSize(640,400)
-
-
-        # 640*480
-        # if GetSystemMetrics(0) >= 1600 and GetSystemMetrics(1) >= 900:
-        #     self.mainWidget.move(300, 300)
-        #     self.mainWidget.resize(700, 300)
-        # elif GetSystemMetrics(0) < 1600 and GetSystemMetrics(1) < 900:
-        #     self.mainWidget.move(200, 200)
-        #     self.mainWidget.resize(500, 200) 
-
-
         # 좌측: 버튼, 레이블 변수값 설정, CSS 설정
         headText = '문서작업을, 맘편하게'
         projectName = 'DocuFree'
-      
+    
         headlineWidget = QLabel(headText) # string: 문서 작업을 맘편하게
         headlineWidget.setStyleSheet('font-weight: 200; font-size: 11px; padding: 0px; margin: 0px;') 
         
@@ -163,28 +146,35 @@ class AppMainFrame:
         self.onStyleSheet = 'QPushButton{background-color: #a5d068; width:130px; color: white; padding: 0px; margin: 0px; border: 0px solid;}'
         self.offStyleSheet = 'QPushButton{background-color: #ea5b60; width:130px; color: white; padding: 0px; margin: 0px; border: 0px solid;}'
     
+
         self.runButton = QPushButton(self.onText)
         self.runButton.setStyleSheet(self.onStyleSheet)
-        self.runButton.clicked.connect(self.activeRun)
+        
+
+        self.runButton.clicked.connect(self.activeFunc)
 
         self.realOnImage = QPixmap(imageOnUrl).scaledToWidth(100)
         self.realOffImage = QPixmap(imageOffUrl).scaledToWidth(100)
 
-        self.label = QLabel()
+        # 초기 mainUI 구성하자마자 선택하는 부분
+        self.label = QLabel()   
+       
         self.label.setPixmap(self.realOnImage)
+    
         self.label.setAlignment(Qt.AlignCenter)
         self.label.setStyleSheet('margin-top : 70px')
 
-        
+       
         self.OnOffTextLabel = QLabel(self.realOnNofiText)
+        self.OnOffSupoTextLabel = QLabel(self.realOnNofiSupoText)
+     
         self.OnOffTextLabel.setAlignment(Qt.AlignCenter)
         self.OnOffTextLabel.setStyleSheet('padding: 0px; margin: 0px; font-size: 17px; font-weight:1000')
-        self.OnOffSupoTextLabel = QLabel(self.realOnNofiSupoText)
+        
         self.OnOffSupoTextLabel.setAlignment(Qt.AlignCenter)
         self.OnOffSupoTextLabel.setStyleSheet('padding: 0px; margin-bottom: 50px;')
         
         
-
         # 사진 크기 조정
         self.label.resize(50, 50)
         
@@ -204,22 +194,18 @@ class AppMainFrame:
         rightLayout.addWidget(self.OnOffSupoTextLabel)
         
         rightLayout.setAlignment(Qt.AlignHCenter)
-        # rightLayout.setSpacing(0)
         
-        
-        
+    
         mainLayout = QHBoxLayout()
         mainLayout.addLayout(leftLayout)
         mainLayout.addLayout(rightLayout)
         mainLayout.setContentsMargins(30,20,30,20)
 
-        
-       
+    
         self.mainWidget.setLayout(mainLayout)
-        self.mainWidget.show()
+        
 
     
-
     """
     DocuFree의 메인 페이지를 눌렀을 때, 동작하는 함수
 
@@ -243,38 +229,52 @@ class AppMainFrame:
             self.listenerThread.isRun = False
             self.listenerThread.ExitMessageToNamedPipe()
                         
-    def activeRun(self):
+    def active_trayMenu(self):
+
+        toastHeader = "DocuFree Notification"
+        offMessage = "실시간 감지가 꺼졌습니다."
+        onMessage = "실시간 감지가 실행되고 있습니다."
+        
+
         if self.action2.isChecked():
             self.action2.setChecked(False)
-            self.runButton.setText(self.offText)
-            self.runButton.setStyleSheet(self.offStyleSheet)
-            self.label.setPixmap(self.realOffImage)
-            self.OnOffTextLabel.setText(self.realOffNofiText)
-            self.OnOffSupoTextLabel.setText(self.realOffNofiSupoText)
-            self.ListenerThreadStop()
-            # self.OnOffSupoTextLabel.setStyleSheet('margin-bottom: 100px; margin-left: 60px;')
-            # self.OnOffTextLabel.setStyleSheet('margin-bottom: 20px; margin-left: 45px; padding-bottom:-40px; font-size: 17px; font-weight:1000')
 
+            self.runButton.setText(self.onText)
+            # 이미지 변경
 
-            time.sleep(0.4)
-            self.activeFunc()
+            self.label.setPixmap(self.realOnImage) 
+
+            # 안내 문자 변경
+            self.OnOffTextLabel = QLabel(self.realOnNofiText)
+            self.OnOffSupoTextLabel = QLabel(self.realOnNofiSupoText)
+
+            # 버튼 스타일 변경
+            self.runButton.setStyleSheet(self.onStyleSheet)
+            self.action2.setChecked(True)
+
+            self.toaster.show_toast(toastHeader, onMessage, icon_path = os.path.join(self.mainPath, "images/icon.ico"), threaded=True, duration=1.5)
+            self.ListenerThreadStart()
             
         else:
+
+
             self.action2.setChecked(True)
-            self.runButton.setText(self.onText)
-            self.runButton.setStyleSheet(self.onStyleSheet)
-            self.label.setPixmap(self.realOnImage)
-            self.OnOffTextLabel.setText(self.realOnNofiText)
-            self.OnOffSupoTextLabel.setText(self.realOnNofiSupoText)
-            self.ListenerThreadStart()
+            self.runButton.setText(self.offText)
+            # 이미지 변경
 
+            self.label.setPixmap(self.realOffImage) 
 
-            # self.OnOffTextLabel.setStyleSheet('margin-bottom: 20px; margin-left: 68px; padding-bottom:-40px; font-size: 17px; font-weight:1000')
-            # self.OnOffSupoTextLabel.setStyleSheet('margin-bottom: 100px; margin-left: 100px;')
+            # 안내 문자 변경
+            self.OnOffTextLabel = QLabel(self.realOffNofiText)
+            self.OnOffSupoTextLabel = QLabel(self.realOffNofiSupoText)
 
-            time.sleep(0.4)
-            self.activeFunc()
-            #self.runButton.clicked.connect(self.activeRun)
+            # 버튼 스타일 변경
+            self.runButton.setStyleSheet(self.offStyleSheet)
+
+            self.action2.setChecked(False)
+            self.toaster.show_toast(toastHeader, offMessage, icon_path = os.path.join(self.mainPath, "images/icon.ico"), threaded=True, duration=1.5)
+            self.ListenerThreadStop()
+            
 
 
     def activeFunc(self):
@@ -283,15 +283,49 @@ class AppMainFrame:
         offMessage = "실시간 감지가 꺼졌습니다."
         onMessage = "실시간 감지가 실행되고 있습니다."
         
-        # pyinstaller 로 빌드하면서 icon_path 관련 이슈 발생, 차후 수정
-
-
+     
         if self.action2.isChecked():
-            self.toaster.show_toast(toastHeader, onMessage, icon_path = '', threaded=True, duration=1.5)
             
-        else:
-            self.toaster.show_toast(toastHeader, offMessage, icon_path = '', threaded=True, duration=1.5)
+            
+            self.runButton.setText(self.offText)
+            # 이미지 변경
 
+            self.label.setPixmap(self.realOffImage) 
+
+            # 안내 문자 변경
+            self.OnOffTextLabel = QLabel(self.realOffNofiText)
+            self.OnOffSupoTextLabel = QLabel(self.realOffNofiSupoText)
+
+            # 버튼 스타일 변경
+            self.runButton.setStyleSheet(self.offStyleSheet)
+
+            self.action2.setChecked(False)
+            self.toaster.show_toast(toastHeader, offMessage, icon_path = os.path.join(self.mainPath, "images/icon.ico"), threaded=True, duration=1.5)
+            self.ListenerThreadStop()
+
+           
+
+
+        else:
+            
+            self.runButton.setText(self.onText)
+            # 이미지 변경
+
+            self.label.setPixmap(self.realOnImage) 
+
+            # 안내 문자 변경
+            self.OnOffTextLabel = QLabel(self.realOnNofiText)
+            self.OnOffSupoTextLabel = QLabel(self.realOnNofiSupoText)
+
+            # 버튼 스타일 변경
+            self.runButton.setStyleSheet(self.onStyleSheet)
+            self.action2.setChecked(True)
+
+            self.toaster.show_toast(toastHeader, onMessage, icon_path = os.path.join(self.mainPath, "images/icon.ico"), threaded=True, duration=1.5)
+            self.ListenerThreadStart()
+
+            
+            
 
 
     def logGui(self):
@@ -302,17 +336,15 @@ class AppMainFrame:
 
         
         self.logGUI.setWindowTitle("DOCFREE(Ver 0.3) - LOG GUI")
-        # if GetSystemMetrics(0) >= 1600 and GetSystemMetrics(1) >= 900:
-        #     self.logGUI.move(600, 300)
-        #     self.logGUI.resize(500, 400)
-        # elif GetSystemMetrics(0) < 1600 and GetSystemMetrics(1) < 900:
-        #     self.logGUI.move(300, 100)
-        #     self.logGUI.resize(500, 400)
-
+    
         # 테이블 위잿 설정        
         self.logGUI.setFixedSize(750, 400)
         tableWidget = QTableWidget()
-        tableWidget.setRowCount(12)
+        
+        LogDataCount, LogData = self.ReturnSqlData()  
+
+
+        tableWidget.setRowCount(LogDataCount)
         tableWidget.setColumnCount(4)
         tableWidget.setHorizontalHeaderLabels(["id", "로그", "유형", "시간"])
         
@@ -322,14 +354,15 @@ class AppMainFrame:
         header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
 
-        LogData = self.ReturnSqlData()
-
+    
         for idx, val in enumerate(LogData):
+            
             tableWidget.setItem(idx, 0, QTableWidgetItem(str(val[0])))
             tableWidget.setItem(idx, 1, QTableWidgetItem(str(val[1])))
             tableWidget.setItem(idx, 2, QTableWidgetItem(str(val[2])))
             tableWidget.setItem(idx, 3, QTableWidgetItem(str(val[3])))
 
+        
         #버튼 설정
         storeButton = QPushButton("저장")
         cancelButton = QPushButton("취소")
@@ -346,7 +379,6 @@ class AppMainFrame:
         mainLayout.addWidget(tableWidget)
         mainLayout.addLayout(buttonLayout)
 
-    
         self.logGUI.setLayout(mainLayout) 
         self.logGUI.show()
 
@@ -355,8 +387,10 @@ class AppMainFrame:
         # Database에서 로그 받아오기
         con = sqlite3.connect(os.path.join(self.mainPath, 'test.db'))
         cur = con.cursor()
-        LogData = cur.execute("select * from datelog")
-        return LogData
+        LogData = cur.execute("select * from datelog").fetchall()
+        LogDataCount = len(LogData)
+        
+        return LogDataCount, LogData
 
 
     """
@@ -393,13 +427,13 @@ class AppMainFrame:
         fileRealTimeName = "실시간검사"
         self.action2 = QAction(fileRealTimeName, checkable=True)
         self.action2.setChecked(True)
-        self.action2.triggered.connect(self.activeFunc)
+        self.action2.triggered.connect(self.active_trayMenu)
         
 
         # 메인 생성
         projectName = "DocuFree"
         action3 = QAction(projectName)
-        action3.triggered.connect(self.mainUi)
+        action3.triggered.connect(self.mainWidget.show)
 
         
         DectectLogMenu = "로그 보기"
@@ -434,8 +468,9 @@ class AppMainFrame:
 
 
         self.app.exec_()
-     
-        
+        self.ListenerThreadStop()
+
+        sys.exit()        
 
     def save(self):
         con = sqlite3.connect(os.path.join(self.mainPath, 'test.db'))

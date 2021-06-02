@@ -8,6 +8,8 @@ DllInjector::DllInjector() {
 
 
 void DllInjector::InjectorStart() {
+
+	cout << "DocuFree : Document Filtering Start..." << endl;
 	this->GetOfficeProcessHandle();
 }
 
@@ -71,9 +73,11 @@ BOOL DllInjector::SearchDll(HANDLE hProcess) {
 				wstring strDllPath = szModName;
 				
 				if (strDllPath.find(injectDllPath) != wstring::npos) { // 로드된 모듈 중에 해당 DLL 이 인식이 될 경우 
+
+					/*
 					cout << "dllFind!!";
 					cout << endl;
-					
+					*/
 					dllfindFlag = true;
 					break;
 				}
@@ -103,8 +107,12 @@ int DllInjector::GetOfficeProcessHandle() {
 				
 				if (lstrcmpW(entry.szExeFile, L"WINWORD.EXE") == 0) {
 					// stricmp : 대소문자 구분하지 않는 문자열 비교 수행, 0 == 일치할 경우
+
+					/*
 					std::cout << "word find!!";
-					
+					*/
+
+
 					hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, entry.th32ProcessID);
 					dllInjectFlag = SearchDll(hProcess);
 					
@@ -119,8 +127,9 @@ int DllInjector::GetOfficeProcessHandle() {
 
 				if (lstrcmpW(entry.szExeFile, L"POWERPNT.EXE") == 0) {
 					// stricmp : 대소문자 구분하지 않는 문자열 비교 수행, 0 == 일치할 경우
+					/*
 					std::cout << "ppt find!!";
-					
+					*/
 					hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, entry.th32ProcessID);
 					dllInjectFlag = SearchDll(hProcess);
 
@@ -133,7 +142,9 @@ int DllInjector::GetOfficeProcessHandle() {
 
 				if (lstrcmpW(entry.szExeFile, L"EXCEL.EXE") == 0){
 					// stricmp : 대소문자 구분하지 않는 문자열 비교 수행, 0 == 일치할 경우
+					/*
 					std::cout << "excel find!!";
+					*/
 					hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, entry.th32ProcessID);
 					dllInjectFlag = SearchDll(hProcess);
 					if (!dllInjectFlag) { // 기존에 dll 이 없을 경우에만
@@ -147,8 +158,9 @@ int DllInjector::GetOfficeProcessHandle() {
 
 		}
 		Sleep(50);
+		/*
 		cout << "next!!!!" << endl;
-
+		*/
 	}
 
 

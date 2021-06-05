@@ -17,22 +17,24 @@ def SetSearchFile(filepath):
     
     print(filepath)
 
+    
 
-    with open(filepath,'rb') as searchFile:
+    with open(filepath,'rb+') as searchFile:
 
         data = searchFile.read()
+
         sha256 = hashlib.sha256(data).hexdigest()
         sha512 = hashlib.sha512(data).hexdigest()
         md5 = hashlib.md5(data).hexdigest()
         hash = {'sha256': sha256,'sha512': sha512, 'md5':md5}
 
-    searchFile.close()
-    
-    result = search(hash)
-    if result:
-        return True            # db에 해쉬값이 존재한다
-    else:
-        return False
+        result = search(hash)
+
+
+        if result:
+            return True            # db에 해쉬값이 존재한다
+        else:
+            return False
 
 def search(hash):
 

@@ -41,6 +41,7 @@ namespace CloseTempDocu
                             object originalFormat = Word.WdOriginalFormat.wdOriginalDocumentFormat;
                             object routeDocument = false;
                             
+                            
                             docu.Close(ref saveOption, ref originalFormat, ref routeDocument);
 
                             flag_exist = false;
@@ -50,7 +51,11 @@ namespace CloseTempDocu
                 }
                 catch(System.Runtime.InteropServices.COMException e)
                 {
+                    /*
+                    Console.WriteLine(e.ErrorCode);
                     Console.WriteLine(e.Message);
+                    */
+
                     continue;
                 }
                 
@@ -80,14 +85,18 @@ namespace CloseTempDocu
                         {
                             object saveOption = Excel.XlSaveAction.xlDoNotSaveChanges;
                             
-                            workbook.Close(saveOption, false, false);
+                            workbook.Close(saveOption);
                             flag_exist = false;
                         }
                     }
                 }
                 catch (System.Runtime.InteropServices.COMException e)
                 {
+                    /*
+                    Console.WriteLine(e.ErrorCode);
                     Console.WriteLine(e.Message);
+                    */
+
                     continue;
                 }
                 
@@ -123,7 +132,12 @@ namespace CloseTempDocu
                 }
                 catch (System.Runtime.InteropServices.COMException e)
                 {
+                    /*
+                    Console.WriteLine(e.ErrorCode);
                     Console.WriteLine(e.Message);
+                    */
+
+
                     continue;
                 }
             }
@@ -156,6 +170,8 @@ namespace CloseTempDocu
             {
                 CloseExcel(filename);
             }
+
+
 
         }
     }

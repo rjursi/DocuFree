@@ -48,10 +48,20 @@ class AppMainFrame:
         self.isRealTimeInsf_running = True
         self.initUi()
 
+    def runIntro(self):
+
+        toastHeader = "DocuFree Notification"
+        Message = "DocuFree 솔루션이 시작되었습니다."
+
+        
+        self.toaster.show_toast(toastHeader, Message, icon_path = os.path.join(self.mainPath, "images/icon.ico"), threaded=True, duration=1.5)
+
+
     def initUi(self):
         
         # 실시간 검사 스레드 바로 시작
-
+        self.runIntro()
+        time.sleep(0.1)
         self.listenerThread = Listener.DocuListener()
         self.listenerThread.threadEvent.connect(self.threadEventHandler)
         self.ListenerThreadStart()
@@ -346,7 +356,7 @@ class AppMainFrame:
 
         tableWidget.setRowCount(LogDataCount)
         tableWidget.setColumnCount(4)
-        tableWidget.setHorizontalHeaderLabels(["id", "로그", "유형", "시간"])
+        tableWidget.setHorizontalHeaderLabels(["id", "파일명", "검사결과", "시간"])
         
         header = tableWidget.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
@@ -429,7 +439,6 @@ class AppMainFrame:
         self.action2.setChecked(True)
         self.action2.triggered.connect(self.active_trayMenu)
         
-
         # 메인 생성
         projectName = "DocuFree"
         action3 = QAction(projectName)

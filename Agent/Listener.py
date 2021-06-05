@@ -1,6 +1,6 @@
 import os
 import sys
-
+import time
 from subprocess import Popen, PIPE
 import subprocess
 from win32 import win32pipe, win32file
@@ -14,11 +14,12 @@ from DocuListener.DocuFilter import docufree
 import CheckLogUpdater
 
 
+
 class DocuListener(QThread):
     
     # 팝업창을 main 윈도우에서 띄울수 있도록 하는 이벤트 핸들러
     threadEvent = QtCore.pyqtSignal(str)
-    
+    remove_files = []
     def __init__(self):
         super().__init__()
         self.isRun = False
@@ -91,7 +92,6 @@ class DocuListener(QThread):
                 
                 print(searchResult)
                 
-
                 # API Server 를 통해서 검색 결과가 없을 경우에만
                 if not searchResult:
                 
@@ -100,13 +100,16 @@ class DocuListener(QThread):
                     if docufree_result.exit_code == 20: # 의심스로운 키워드로 검출이 될 경우
                         
                         # 알림창을 띄우라는 신호를 보냄
-                        self.threadEvent.emit(filename)
-
+                    
                         insert_result = DocuInfoAdd.add(filename)
 
                         if insert_result: 
-                            os.remove(filename)
-                            
+                          
+                            self.threadEvent.emit(self.ChangePathFormat_whiteList(filename))
+
+                            os.remove(self.ChangePathFormat(filename))
+
+
                         else:
                             print("Info Insert Error!!")
                     else:
@@ -123,8 +126,8 @@ class DocuListener(QThread):
                     os.remove(self.ChangePathFormat(filename))
 
 
-                
-                    
+               
+            
 
         win32file.CloseHandle(self.pipe)
         pollingProc.terminate()

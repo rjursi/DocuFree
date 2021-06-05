@@ -76,27 +76,27 @@ re_execute = re.compile(r'(?i)\b(?:Shell|CreateObject|GetObject|SendKeys|RUN|CAL
 class Result_NoMacro(object):
     exit_code = 0
     color = 'green'
-    name = 'No Macro'
+    name = '매크로 없음'
 
 class Result_NotMSOffice(object):
     exit_code = 1
     color = 'green'
-    name = 'No Macro'
+    name = '매크로 없음'
 
 class Result_MacroOK(object):
     exit_code = 2
     color = 'cyan'
-    name = 'Macro OK'
+    name = '정상 매크로'
 
 class Result_Error(object):
     exit_code = 10
     color = 'yellow'
-    name = 'ERROR'
+    name = '에러'
 
 class Result_Suspicious(object):
     exit_code = 20
     color = 'red'
-    name = 'SUSPICIOS'
+    name = '의심스러움'
 
 class MacroDocuFree(object):
     """
@@ -169,6 +169,8 @@ def ChangePathFormat(filepath):
 
 
 def main(filepath):
+
+
     """
     메인
     """
@@ -206,42 +208,44 @@ def main(filepath):
     '''
 
     for filename in args:
-            # 위 코드에 따라서 data, container 는 None 이 될 수도 있음 (단일 파일일 경우)
+        # 위 코드에 따라서 data, container 는 None 이 될 수도 있음 (단일 파일일 경우)
+        try:
+            vba_parser = olevba.VBA_Parser(filename=filename, data=None, container=None)
+            # filetype = TYPE2TAG[vba_parser.type]
+
+        except Exception as e:
+
+            result = Result_Error
+        
+
+            continue
+
+        if vba_parser.detect_vba_macros():
+            vba_code_all_modules = ''
             try:
-                vba_parser = olevba.VBA_Parser(filename=filename, data=None, container=None)
-                # filetype = TYPE2TAG[vba_parser.type]
+                vba_code_all_modules = vba_parser.get_vba_code_all_modules()
 
             except Exception as e:
 
                 result = Result_Error
-            
 
                 continue
-
-            if vba_parser.detect_vba_macros():
-                vba_code_all_modules = ''
-                try:
-                    vba_code_all_modules = vba_parser.get_vba_code_all_modules()
-
-                except Exception as e:
-
-                    result = Result_Error
-
-                    continue
-            
-                docufree = MacroDocuFree(vba_code_all_modules)
-                docufree.scan()
+        
+            docufree = MacroDocuFree(vba_code_all_modules)
+            docufree.scan()
 
 
-                result = Result_Suspicious if docufree.suspicious else Result_MacroOK
+            result = Result_Suspicious if docufree.suspicious else Result_MacroOK
 
-            else:
+        else:
 
-                result = Result_NoMacro
-         
+            result = Result_NoMacro
+        
 
-            if result.exit_code > exitcode:
-                global_result = result
+        if result.exit_code > exitcode:
+            global_result = result
+
+        vba_parser.close()
 
 
     return global_result

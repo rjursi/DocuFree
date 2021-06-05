@@ -201,7 +201,6 @@ HANDLE CreateFileFunctionsHook(
 					if (str_lpFileName.find(L"~$") == std::wstring::npos) {
 						SendFilePath(lpFileName);
 						UnblockDocuFile(lpFileName);
-						return CreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 					}
 
 					/*
@@ -265,10 +264,11 @@ HANDLE CreateFileFunctionsHook(
 					OutputDebugString(L"Not Found In WhiteLIst!!");
 
 					if (str_lpFileName.find(L"~$") == std::wstring::npos) {
+						
 						SendFilePath(lpFileName);
 						UnblockDocuFile(lpFileName);
-						return CreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 					}
+				}
 
 					/*
 					wcscat_s(drive, chDocPath);
@@ -312,10 +312,6 @@ HANDLE CreateFileFunctionsHook(
 					
 					return CreateFileW(drive, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
 					*/
-
-
-				}
-
 			}
 			else if (ext.find(L"ppt") != std::wstring::npos) { // 파워포인트 파일일 경우
 				OutputDebugString(L"ppt");
@@ -330,7 +326,7 @@ HANDLE CreateFileFunctionsHook(
 					if (str_lpFileName.find(L"~$") == std::wstring::npos) {
 						SendFilePath(lpFileName);
 						UnblockDocuFile(lpFileName);
-						return CreateFileW(lpFileName, dwDesiredAccess, dwShareMode, lpSecurityAttributes, dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile);
+						
 					}
 
 					/*

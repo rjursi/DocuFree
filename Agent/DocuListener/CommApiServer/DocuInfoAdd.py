@@ -15,7 +15,9 @@ def add(filepath):
     url=f'http://35.233.216.2:5000/add'
     #파일이름, 파일형식 정보 받아와야됨(name, extension)
 
-    with open(ChangePathFormat(filepath),'rb') as searchFile:
+    flag = None
+
+    with open(ChangePathFormat(filepath),'rb+') as searchFile:
 
         data = searchFile.read()
         sha256 = hashlib.sha256(data).hexdigest()
@@ -23,20 +25,18 @@ def add(filepath):
         md5 = hashlib.md5(data).hexdigest()
         hash = {'sha256': sha256,'sha512': sha512, 'md5':md5}
 
-    searchFile.close()
+        filename = filepath.split("/")[-1]
+        ext = filename.split(".")[-1]
 
-    filename = filepath.split("/")[-1]
-    ext = filename.split(".")[-1]
+        data = {'name' : filename, 'sha256' : hash['sha256'], 'sha512' : hash['sha512'], 'md5' : hash['md5'], 'extension' : ext}
+        res = requests.post(url, json=data)
+        flag = res.text
 
-    data = {'name' : filename, 'sha256' : hash['sha256'], 'sha512' : hash['sha512'], 'md5' : hash['md5'], 'extension' : ext}
-    res = requests.post(url, json=data)
-    flag = res.text
-
-    print(flag)
+        print(flag)
 
     
+
     if flag == "Insert Success":
         return True
     elif flag == "Insert Fail":
         return False
-    

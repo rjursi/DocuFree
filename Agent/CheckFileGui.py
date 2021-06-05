@@ -20,9 +20,8 @@ from PyQt5.QtGui import *
 from win32api import GetSystemMetrics
 
 from DocuListener.DocuFilter import docufree, alert
-from DocuListener.CommApiServer import DocuInfoAdd
+from DocuListener.CommApiServer import DocuInfoAdd, DocuInfoSelect
 import CheckLogUpdater
-
 
 class AppD(QWidget):
     def __init__(self):
@@ -34,7 +33,7 @@ class AppD(QWidget):
         self.timer = QBasicTimer()
         self.step = 0
         self.initUI()
-        
+        self.files = []    
     
     def initUI(self):
 
@@ -44,13 +43,18 @@ class AppD(QWidget):
         '''
 
         def AddFunc():
-            self.files = self.openFileNamesDialog()
+            self.files.extend(self.openFileNamesDialog())
+            
             if len(self.files) != 0:
+                self.listWidget.clear()
+
                 for index in range(len(self.files)):
                     print(self.files[index])
                     item = QListWidgetItem(self.files[index])
                     item.setCheckState(QtCore.Qt.Unchecked)
                     self.listWidget.addItem(item)
+            
+                self.listWidget.update()
 
         def RemoveFunc():
         
@@ -64,54 +68,77 @@ class AppD(QWidget):
                 for index in range(self.listWidget.count()):
                     if self.listWidget.item(index).checkState() == QtCore.Qt.Checked:
                         self.listWidget.takeItem(index)
+                        
                         del self.files[index]
                         count -= 1
                         
                         break
 
+
+                self.listWidget.update()
+
+
+
+
         # progressbar 값 변경시키는 것 
-        
+    
         def RunFunc():
 
             mal_count = 0
             prog_stat = 0
             files_count = len(self.files)
-            for index in range(files_count):
+            
+            index = 0
+
+            while index < files_count:
                 
-                prog_stat += 100 // files_count
+                prog_stat = (float(files_count) / 100.0) * 100.0
 
                 self.phar.setValue(index) 
-
-                docufree_result = docufree.main(self.files[index])
                 
+                # 여기서 특정 파일에 대하여 파일을 잘 못닫고 있음
+                docufree_result = docufree.main(self.files[index])
+
                 if docufree_result.exit_code == 20:
-                    '''
-                    self.AlertObj = alert.alertf(self.files[index])
-                    self.AlertObj.MainWindow.show()
-                    '''
-
-                    mal_count += 1
-                    info_result = DocuInfoAdd.add(self.files[index])
                     
-                    if info_result:
-                        self.listWidget.takeItem(index)
-                        os.remove(self.files[index]) # 파일 지우는 명령어
-                        
-                    else:
-                        print("Info INsert Error!!")
+                    mal_count += 1
 
-                CheckLogUpdater.InsertLog(self.files[index], docufree_result.name)
+                    searchResult = DocuInfoSelect.SetSearchFile(self.files[index])
+                
+                    print(searchResult)
+
+                    if not searchResult: # DB 에 해당 값이 들어가 있지 않을 경우
+                        DocuInfoAdd.add(self.files[index])
+                                    
+                    self.listWidget.takeItem(index)
+                    self.listWidget.update()
+
+                   
+                    os.remove(self.files[index])
+                           
+                    files_count -= 1
+                
+                    CheckLogUpdater.InsertLog(self.files[index], docufree_result.name)
+                    del self.files[index]
+                else:
+                    # 지정 인덱스 파일이 악성 파일이 아니면 바로 다음 인덱스로 넘김
+                    CheckLogUpdater.InsertLog(self.files[index], docufree_result.name)
+                   
+                    index += 1
 
                 time.sleep(0.05)
+                self.phar.setValue(prog_stat)
 
             self.phar.setValue(100)
+
+
             if mal_count == 0:
                 
                 self.statusInfo.setText("검사가 완료되었습니다. 의심스러운 문서가 없습니다.")
             else:
-                self.statusInfo.setText(mal_count + "건의 의심스러운 문서가 발견되었고 조치되었습니다.")
-
+                self.statusInfo.setText(str(mal_count) + "건의 의심스러운 문서가 발견되었고 조치되었습니다.")
     
+
         ''' 
         내부 함수 영역 끝
         '''
@@ -205,7 +232,8 @@ class AppD(QWidget):
     def openFileNamesDialog(self):
         options = QtWidgets.QFileDialog.Options()
         options |= QtWidgets.QFileDialog.DontUseNativeDialog
-        files, _ = QtWidgets.QFileDialog.getOpenFileNames(self,"QFileDialog.getOpenFileNames()", "","All Files (*);;Python Files (*.py)", options=options)
+        fileFilter = "Office Files(*.xls *.xlsm *.doc *.docm *.ppt *.pptm)"
+        files, _ = QtWidgets.QFileDialog.getOpenFileNames(self,"파일 검사", "",fileFilter, options=options)
 
         return files
         

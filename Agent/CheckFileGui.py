@@ -7,6 +7,7 @@
 참고: https://developer.microsoft.com/ko-kr/windows/downloads/windows-10-sdk
 """
 
+
 import sys, os
 import time
 
@@ -20,7 +21,7 @@ from PyQt5.QtGui import *
 from win32api import GetSystemMetrics
 
 from DocuListener.DocuFilter import docufree, alert
-from DocuListener.CommApiServer import DocuInfoAdd, DocuInfoSelect
+from DocuListener.CommApiServer import DocuInfoComm
 import CheckLogUpdater
 
 class AppD(QWidget):
@@ -54,32 +55,26 @@ class AppD(QWidget):
                     item.setCheckState(QtCore.Qt.Unchecked)
                     self.listWidget.addItem(item)
             
-                self.listWidget.update()
+                
 
         def RemoveFunc():
         
-            count = 0
+            removeFiles = []
 
             for index in range(self.listWidget.count()):
                 if self.listWidget.item(index).checkState() == QtCore.Qt.Checked:
-                    count += 1
+                    removeText = self.listWidget.item(index).text()
+                    removeFiles.append(removeText)
+                    
+            for file in removeFiles:
 
-            while count:
-                for index in range(self.listWidget.count()):
-                    if self.listWidget.item(index).checkState() == QtCore.Qt.Checked:
-                        self.listWidget.takeItem(index)
-                        
-                        del self.files[index]
-                        count -= 1
-                        
-                        break
+                index = self.files.index(file)
+                self.listWidget.takeItem(index)
+                del self.files[index]
+                
+            print(self.files)
 
-
-                self.listWidget.update()
-
-
-
-
+            
         # progressbar 값 변경시키는 것 
     
         def RunFunc():
@@ -88,52 +83,50 @@ class AppD(QWidget):
             prog_stat = 0
             files_count = len(self.files)
             
+            if files_count == 0:
+                return
+
             index = 0
 
-            while index < files_count:
-                
-                prog_stat = (float(files_count) / 100.0) * 100.0
+            remove_indexs = []
 
-                self.phar.setValue(index) 
-                
-                # 여기서 특정 파일에 대하여 파일을 잘 못닫고 있음
-                docufree_result = docufree.main(self.files[index])
+            prog_incre = 100 // files_count
 
-                if docufree_result.exit_code == 20:
+            # 결과값을 dict 형식으로 받음
+            # {"파일명": result_object}
+            docufree_result = docufree.main(self.files)
+
+            for filename in docufree_result.keys():
+                if docufree_result[filename].exit_code == 20:
+                    # 데이터베이스에 추가하는 과정 거침
+                    DocuInfoComm.add(filename)
                     
-                    mal_count += 1
-
-                    searchResult = DocuInfoSelect.SetSearchFile(self.files[index])
-                
-                    print(searchResult)
-
-                    if not searchResult: # DB 에 해당 값이 들어가 있지 않을 경우
-                        DocuInfoAdd.add(self.files[index])
-                                    
-                    self.listWidget.takeItem(index)
-                    self.listWidget.update()
-
-                   
-                    os.remove(self.files[index])
-                           
-                    files_count -= 1
-                
-                    CheckLogUpdater.InsertLog(self.files[index], docufree_result.name)
-                    del self.files[index]
+                    CheckLogUpdater.InsertLog(filename, docufree_result[filename].name)
+                    remove_indexs.append(filename)
+                    
+                    prog_stat += prog_incre
+                    self.phar.setValue(prog_stat)
                 else:
-                    # 지정 인덱스 파일이 악성 파일이 아니면 바로 다음 인덱스로 넘김
-                    CheckLogUpdater.InsertLog(self.files[index], docufree_result.name)
-                   
-                    index += 1
+                    prog_stat += prog_incre
+                    self.phar.setValue(prog_stat)
+                    CheckLogUpdater.InsertLog(filename, docufree_result[filename].name)
+                    
+                    
+            mal_count = len(remove_indexs)
 
-                time.sleep(0.05)
-                self.phar.setValue(prog_stat)
+            for file in remove_indexs:
+                os.remove(file)
+                index = self.files.index(file)
+                self.listWidget.takeItem(index)
+
+                del self.files[self.files.index(file)]
+                
 
             self.phar.setValue(100)
 
 
             if mal_count == 0:
-                
+    
                 self.statusInfo.setText("검사가 완료되었습니다. 의심스러운 문서가 없습니다.")
             else:
                 self.statusInfo.setText(str(mal_count) + "건의 의심스러운 문서가 발견되었고 조치되었습니다.")

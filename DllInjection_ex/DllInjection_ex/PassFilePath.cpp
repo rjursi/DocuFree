@@ -199,8 +199,11 @@ HANDLE CreateFileFunctionsHook(
 
 				
 					if (str_lpFileName.find(L"~$") == std::wstring::npos) {
-						SendFilePath(lpFileName);
-						UnblockDocuFile(lpFileName);
+						if (ext.find(L"docx") == std::wstring::npos) {
+							SendFilePath(lpFileName);
+							UnblockDocuFile(lpFileName);
+						}
+						
 					}
 
 					/*
@@ -264,9 +267,10 @@ HANDLE CreateFileFunctionsHook(
 					OutputDebugString(L"Not Found In WhiteLIst!!");
 
 					if (str_lpFileName.find(L"~$") == std::wstring::npos) {
-						
-						SendFilePath(lpFileName);
-						UnblockDocuFile(lpFileName);
+						if (ext.find(L"xlsx") == std::wstring::npos) {
+							SendFilePath(lpFileName);
+							UnblockDocuFile(lpFileName);
+						}
 					}
 				}
 
@@ -324,9 +328,10 @@ HANDLE CreateFileFunctionsHook(
 					OutputDebugString(L"Not Found In WhiteLIst!!");
 
 					if (str_lpFileName.find(L"~$") == std::wstring::npos) {
-						SendFilePath(lpFileName);
-						UnblockDocuFile(lpFileName);
-						
+						if (ext.find(L"pptx") == std::wstring::npos) {
+							SendFilePath(lpFileName);
+							UnblockDocuFile(lpFileName);
+						}
 					}
 
 					/*

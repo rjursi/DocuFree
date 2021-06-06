@@ -168,7 +168,7 @@ def ChangePathFormat(filepath):
 # --- MAIN ---------------------------------------------------
 
 
-def main(filepath):
+def main(args):
 
 
     """
@@ -179,14 +179,13 @@ def main(filepath):
    
     options = {'recursive': None, 'zip_password': None, 'zip_fname': '*', 'loglevel': 'warning', 'show_matches': None}
     # print(options)
-
-    args = []
-    args.append(ChangePathFormat(filepath))
+    
     # print(args)
     
+    result_dics = {}
 
     exitcode = -1
-    global_result = None
+    # global_result = None
 
     
     # args = 리스트 형식으로 받음
@@ -243,12 +242,12 @@ def main(filepath):
         
 
         if result.exit_code > exitcode:
-            global_result = result
+            result_dics[filename] = result
 
         vba_parser.close()
 
 
-    return global_result
+    return result_dics
 
 
 

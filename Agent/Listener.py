@@ -86,42 +86,46 @@ class DocuListener(QThread):
             
                 filename = filename.replace("\\x00","")
                 subprocess.run([self.cmd_closeTemp, filename]) # 열렸던 파일 닫히도록
-
+                
+                if os.path.exists(self.ChangePathFormat(filename)):
                 # ApiServer Check
-                searchResult = DocuInfoComm.SetSearchFile(filename)
-                
-                print(searchResult)
-                
-                # API Server 를 통해서 검색 결과가 없을 경우에만
-                if not searchResult:
+                    searchResult = DocuInfoComm.SetSearchFile(filename)
                     
-                    input_args = []
-                    formatChanged_filename = self.ChangePathFormat(filename)
-                    input_args.append(formatChanged_filename)
-                    docufree_result = docufree.main(input_args)
-                
-                    if docufree_result[formatChanged_filename].exit_code == 20: # 의심스로운 키워드로 검출이 될 경우
+                    print(searchResult)
+                    
+                    # API Server 를 통해서 검색 결과가 없을 경우에만
+                    if not searchResult:
                         
-                        # 알림창을 띄우라는 신호를 보냄
+                        input_args = []
+                        formatChanged_filename = self.ChangePathFormat(filename)
+                        input_args.append(formatChanged_filename)
+                        docufree_result = docufree.main(input_args)
                     
-                        insert_result = DocuInfoComm.add(filename)
-                        if insert_result: 
-                            self.threadEvent.emit(self.ChangePathFormat_whiteList(filename))
-                            os.remove(self.ChangePathFormat(filename))
+                        if docufree_result[formatChanged_filename].exit_code == 20: # 의심스로운 키워드로 검출이 될 경우
+                            
+                            # 알림창을 띄우라는 신호를 보냄
+                        
+                            insert_result = DocuInfoComm.add(filename)
+                            if insert_result: 
+                                self.threadEvent.emit(self.ChangePathFormat_whiteList(filename))
+                                if os.path.exists(self.ChangePathFormat(filename)):
+                                    os.remove(self.ChangePathFormat(filename))
+                            else:
+                                print("Info Insert Error!!")
                         else:
-                            print("Info Insert Error!!")
+                            
+                            self.AddFileInfo(self.ChangePathFormat_whiteList(filename)) # 나중에 다시 검사하지 않도록 whitelist 추가
+                            
+                            os.startfile(self.ChangePathFormat(filename))
+                    
+                        CheckLogUpdater.InsertLog(self.ChangePathFormat(filename), docufree_result[formatChanged_filename].name)
+
+
+                    # 서버 데이터베이스 단에서 확인이 이루어지는 경우
                     else:
-                        
-                        self.AddFileInfo(self.ChangePathFormat_whiteList(filename)) # 나중에 다시 검사하지 않도록 whitelist 추가
-                        os.startfile(self.ChangePathFormat(filename))
-                
-                    CheckLogUpdater.InsertLog(self.ChangePathFormat(filename), docufree_result[formatChanged_filename].name)
-
-
-                # 서버 데이터베이스 단에서 확인이 이루어지는 경우
-                else:
-                    self.threadEvent.emit(self.ChangePathFormat(filename))
-                    os.remove(self.ChangePathFormat(filename))
+                        self.threadEvent.emit(self.ChangePathFormat(filename))
+                        if os.path.exists(self.ChangePathFormat(filename)):
+                            os.remove(self.ChangePathFormat(filename))
 
 
                

@@ -35,7 +35,7 @@ class AppD(QWidget):
         self.step = 0
         self.initUI()
         self.files = []    
-    
+     
     def initUI(self):
 
 
@@ -55,8 +55,7 @@ class AppD(QWidget):
                     item.setCheckState(QtCore.Qt.Unchecked)
                     self.listWidget.addItem(item)
             
-                
-
+            
         def RemoveFunc():
         
             removeFiles = []
@@ -115,7 +114,8 @@ class AppD(QWidget):
             mal_count = len(remove_indexs)
 
             for file in remove_indexs:
-                os.remove(file)
+                if os.path.exists(file):
+                    os.remove(file)
                 index = self.files.index(file)
                 self.listWidget.takeItem(index)
 
@@ -213,7 +213,6 @@ class AppD(QWidget):
         '''
 
        
-
     # 파일 검사에 따른 timerEvent, Progressbar 제어
     def timerEvent(self, event):
         pass

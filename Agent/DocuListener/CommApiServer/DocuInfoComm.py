@@ -3,8 +3,7 @@ import hashlib
 
 
 
-
-def ChangePathFormat( filepath):
+def ChangePathFormat(filepath):
     
     new_pathFormat = filepath.replace("\\","/").replace("//","/").replace("\'","").replace("\"","")
     

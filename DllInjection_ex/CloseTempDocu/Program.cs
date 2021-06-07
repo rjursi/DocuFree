@@ -51,6 +51,10 @@ namespace CloseTempDocu
                 }
                 catch(System.Runtime.InteropServices.COMException e)
                 {
+                    if (e.ErrorCode == -2147221021)
+                    {
+                        break;
+                    }
                     /*
                     Console.WriteLine(e.ErrorCode);
                     Console.WriteLine(e.Message);
@@ -92,6 +96,10 @@ namespace CloseTempDocu
                 }
                 catch (System.Runtime.InteropServices.COMException e)
                 {
+                    if (e.ErrorCode == -2147221021)
+                    {
+                        break;
+                    }
                     /*
                     Console.WriteLine(e.ErrorCode);
                     Console.WriteLine(e.Message);
@@ -132,11 +140,11 @@ namespace CloseTempDocu
                 }
                 catch (System.Runtime.InteropServices.COMException e)
                 {
-                    /*
-                    Console.WriteLine(e.ErrorCode);
-                    Console.WriteLine(e.Message);
-                    */
-
+                    if(e.ErrorCode == -2147221021)
+                    {
+                        break;
+                    }
+                    
 
                     continue;
                 }
@@ -147,14 +155,14 @@ namespace CloseTempDocu
         {
 
             string filename = args[0];
-            Console.WriteLine(filename);
+            // Console.WriteLine(filename);
 
 
             filename = filename.Replace("\"", "");
             filename = filename.Replace("\\\\", "\\");
             filename = filename.Replace("\'", "");
-           
-            Console.WriteLine(filename);
+
+            // Console.WriteLine(filename);
             string[] ext = filename.Split('.');
             string filterExt = ext[ext.Length - 1];
 

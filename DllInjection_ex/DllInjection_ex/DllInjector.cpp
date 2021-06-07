@@ -41,13 +41,14 @@ BOOL DllInjector::InjectDll(DWORD processID) {
 
 
 		// 다른 에러 코드 필터링
+		/*
 		printf("RhInjectLibaray failed with error code = %d\n", status);
 		PWCHAR err = RtlGetLastErrorString();
 		wcout << err << endl;
-
+		*/
 	}
 	else {
-		wcout << L"Libaray Injected success" << endl;
+		// wcout << L"Libaray Injected success" << endl;
 
 	}
 

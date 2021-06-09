@@ -103,7 +103,7 @@ class AppMainFrame:
         projectname_HBoxLayout.setSpacing(0)
 
 
-        fileDetectText = 'Office\n파일 검사'
+        fileDetectText = 'Office 파일 검사'
 
         # 파일 검사 스타일시트 목록
         self.onStyleSheet = 'QPushButton{background-color: #a5d068; color: white; padding: 0px; margin: 0px; border: 0px solid;}'
@@ -247,7 +247,7 @@ class AppMainFrame:
         
 
         if self.action2.isChecked():
-            self.action2.setChecked(False)
+            self.action2.setChecked(True)
 
             self.runButton.setText(self.onText)
             # 이미지 변경
@@ -255,34 +255,34 @@ class AppMainFrame:
             self.label.setPixmap(self.realOnImage) 
 
             # 안내 문자 변경
-            self.OnOffTextLabel = QLabel(self.realOnNofiText)
-            self.OnOffSupoTextLabel = QLabel(self.realOnNofiSupoText)
+            self.OnOffTextLabel.setText(self.realOnNofiText)
+            self.OnOffSupoTextLabel.setText(self.realOnNofiSupoText)
 
             # 버튼 스타일 변경
             self.runButton.setStyleSheet(self.onStyleSheet)
             self.action2.setChecked(True)
 
-            self.toaster.show_toast(toastHeader, onMessage, icon_path = os.path.join(self.mainPath, "images/icon.ico"), threaded=True, duration=1.5)
+            self.toaster.show_toast(toastHeader, onMessage, icon_path = os.path.join(self.mainPath, "images/icon.ico"), threaded=True, duration=2)
             self.ListenerThreadStart()
             
         else:
 
 
-            self.action2.setChecked(True)
+            self.action2.setChecked(False)
             self.runButton.setText(self.offText)
             # 이미지 변경
 
             self.label.setPixmap(self.realOffImage) 
 
             # 안내 문자 변경
-            self.OnOffTextLabel = QLabel(self.realOffNofiText)
-            self.OnOffSupoTextLabel = QLabel(self.realOffNofiSupoText)
+            self.OnOffTextLabel.setText(self.realOffNofiText)
+            self.OnOffSupoTextLabel.setText(self.realOffNofiSupoText)
 
             # 버튼 스타일 변경
             self.runButton.setStyleSheet(self.offStyleSheet)
 
             self.action2.setChecked(False)
-            self.toaster.show_toast(toastHeader, offMessage, icon_path = os.path.join(self.mainPath, "images/icon.ico"), threaded=True, duration=1.5)
+            self.toaster.show_toast(toastHeader, offMessage, icon_path = os.path.join(self.mainPath, "images/icon.ico"), threaded=True, duration=2)
             self.ListenerThreadStop()
             
 
@@ -303,8 +303,8 @@ class AppMainFrame:
             self.label.setPixmap(self.realOffImage) 
 
             # 안내 문자 변경
-            self.OnOffTextLabel = QLabel(self.realOffNofiText)
-            self.OnOffSupoTextLabel = QLabel(self.realOffNofiSupoText)
+            self.OnOffTextLabel.setText(self.realOffNofiText)
+            self.OnOffSupoTextLabel.setText(self.realOffNofiSupoText)
 
             # 버튼 스타일 변경
             self.runButton.setStyleSheet(self.offStyleSheet)
@@ -324,8 +324,8 @@ class AppMainFrame:
             self.label.setPixmap(self.realOnImage) 
 
             # 안내 문자 변경
-            self.OnOffTextLabel = QLabel(self.realOnNofiText)
-            self.OnOffSupoTextLabel = QLabel(self.realOnNofiSupoText)
+            self.OnOffTextLabel.setText(self.realOnNofiText)
+            self.OnOffSupoTextLabel.setText(self.realOnNofiSupoText)
 
             # 버튼 스타일 변경
             self.runButton.setStyleSheet(self.onStyleSheet)
@@ -345,7 +345,7 @@ class AppMainFrame:
         # 동적 UI 설정 부분
 
         
-        self.logGUI.setWindowTitle("DOCFREE(Ver 0.3) - LOG GUI")
+        self.logGUI.setWindowTitle("DocuFree - 검사 기록 확인")
     
         # 테이블 위잿 설정        
         self.logGUI.setFixedSize(750, 400)
@@ -355,22 +355,25 @@ class AppMainFrame:
 
 
         tableWidget.setRowCount(LogDataCount)
-        tableWidget.setColumnCount(4)
-        tableWidget.setHorizontalHeaderLabels(["id", "파일명", "검사결과", "시간"])
+        tableWidget.setColumnCount(3)
+        tableWidget.setHorizontalHeaderLabels(["파일명", "검사결과", "시간"])
         
+        tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
+
         header = tableWidget.horizontalHeader()
+        
         header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(2, QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
-
-    
+        
         for idx, val in enumerate(LogData):
             
             tableWidget.setItem(idx, 0, QTableWidgetItem(str(val[0])))
             tableWidget.setItem(idx, 1, QTableWidgetItem(str(val[1])))
             tableWidget.setItem(idx, 2, QTableWidgetItem(str(val[2])))
-            tableWidget.setItem(idx, 3, QTableWidgetItem(str(val[3])))
+            
+        header.setStretchLastSection(True)
 
         
         #버튼 설정
@@ -397,7 +400,7 @@ class AppMainFrame:
         # Database에서 로그 받아오기
         con = sqlite3.connect(os.path.join(self.mainPath, 'test.db'))
         cur = con.cursor()
-        LogData = cur.execute("select * from datelog").fetchall()
+        LogData = cur.execute("select log_text, datect, DateInserted from datelog").fetchall()
         LogDataCount = len(LogData)
         
         return LogDataCount, LogData

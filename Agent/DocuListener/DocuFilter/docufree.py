@@ -1,44 +1,8 @@
-__version__ = '0.0.1'
-
-#----------------------------------------------------------------------
 
 # ---------------- import --------------------------------------------
 
-
-import sys, logging, optparse, re, os
-
-
-_thismodule_dir = os.path.normpath(os.path.abspath(os.path.dirname(__file__)))
-_parent_dir = os.path.normpath(os.path.join(_thismodule_dir, '..'))
-
-# 시스템 환경변수 설정
-if not _parent_dir in sys.path:
-    sys.path.insert(0, _parent_dir)
-
-
-from oletools.thirdparty.xglob import xglob
-from oletools.thirdparty.tablestream import tablestream
-
+import re
 from oletools import olevba
-from oletools.olevba import TYPE2TAG
-
-
-
-# ---------------- logging --------------------------------------------
-
-
-# 디버깅을 위한 전역 로그 객체 생성
-log = olevba.get_logger('docufree')
-
-
-#--- CONSTANTS ----------------------------------------------------------------
-
-
-URL_ISSUES = 'https://github.com/rjursi/DocuFree'
-MSG_ISSUES = 'Report this issue on %s' % URL_ISSUES
-
-
-# 문자열 매칭을 위한 컴파일
 
 # 자동 실행 매크로
 re_autoexec = re.compile(r'(?i)\b(?:Auto(?:Exec|_?Open|_?Close|Exit|New)' +
@@ -54,7 +18,7 @@ re_autoexec = re.compile(r'(?i)\b(?:Auto(?:Exec|_?Open|_?Close|Exit|New)' +
 RE_OPEN_WRITE = r'(?:\bOpen\b[^\n]+\b(?:Write|Append|Binary|Output|Random)\b)'
 
 
-# 쓰기 매크로
+# 쓰기 키워드
 re_write = re.compile(r'(?i)\b(?:FileCopy|CopyFile|Kill|CreateTextFile|'
     + r'VirtualAlloc|RtlMoveMemory|URLDownloadToFileA?|AltStartupPath|WriteProcessMemory|'
     + r'ADODB\.Stream|WriteText|SaveToFile|SaveAs|SaveAsRTF|FileSaveAs|MkDir|RmDir|SaveSetting|SetAttr)\b|' + RE_OPEN_WRITE)
@@ -147,17 +111,6 @@ class MacroDocuFree(object):
         if self.autoexec and (self.execute or self.write):
             self.suspicious = True
 
-        
-
-
-    def get_flags(self):
-        flags = ''
-        flags += 'A' if self.autoexec else '-'
-        flags += 'W' if self.write else '-'
-        flags += 'X' if self.execute else '-'
-        return flags
-
-
 def ChangePathFormat(filepath):
     
     
@@ -178,39 +131,16 @@ def main(args):
     # 로그 설정, 기본값은 경고
    
     options = {'recursive': None, 'zip_password': None, 'zip_fname': '*', 'loglevel': 'warning', 'show_matches': None}
-    # print(options)
-    
-    # print(args)
-    
     result_dics = {}
-
     exitcode = -1
-    # global_result = None
-
     
     # args = 리스트 형식으로 받음
-
-    '''
-    for container, filename, data in xglob.iter_files(args, recursive=options['recursive'], zip_password=options['zip_password'], zip_fname=options['zip_fname']):
-
-        if container and filename.endswith('/'):
-            continue
-        
-        full_name = "%s in %s" % (filename, container) if container else filename
-
-        if isinstance(data, Exception):
-            result = Result_Error
-
-
-        else:
-            filetype = "???"
-    '''
 
     for filename in args:
         # 위 코드에 따라서 data, container 는 None 이 될 수도 있음 (단일 파일일 경우)
         try:
             vba_parser = olevba.VBA_Parser(filename=filename, data=None, container=None)
-            # filetype = TYPE2TAG[vba_parser.type]
+            
 
         except Exception as e:
 

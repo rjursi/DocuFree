@@ -3,7 +3,7 @@
 작성일자: 2021.04.02
 업데이트 일자: 2021.04.22
 이메일: jiungdev@gmail.com
-개발환경: python 3.9.2 64bit
+개발환경: python 3.7.9 64bit
 참고: https://developer.microsoft.com/ko-kr/windows/downloads/windows-10-sdk
 """
 
@@ -20,7 +20,7 @@ from qt_material import apply_stylesheet
 from PyQt5.QtGui import *
 from win32api import GetSystemMetrics
 
-from DocuListener.DocuFilter import docufree, alert
+from DocuListener.DocuFilter import  docufree, alert
 from DocuListener.CommApiServer import DocuInfoComm
 import CheckLogUpdater
 
@@ -37,7 +37,6 @@ class AppD(QWidget):
         self.files = []    
      
     def initUI(self):
-
 
         '''
         내부 함수 영역
@@ -142,18 +141,14 @@ class AppD(QWidget):
 
 
         self.setWindowTitle(self.title)
-        if GetSystemMetrics(0) >= 1600 and GetSystemMetrics(1) >= 900:
-            self.setGeometry(700, 300, 400 ,300)
-        elif GetSystemMetrics(0) < 1600 and GetSystemMetrics(1) < 900:
-            self.setGeometry(400, 200, 350, 350)
-
+        self.setFixedSize(1000, 500)
 
         font = QFont()
         font.setFamily("Verdana")
         font.setPointSize(10)
 
         # Create ProgressBar Layout
-        self.phar.setGeometry(200, 100, 200, 30)
+
         ProgressLayout = QHBoxLayout()
         ProgressLayout.addWidget(self.phar)
         
@@ -163,12 +158,12 @@ class AppD(QWidget):
         #Create add Button
         AddButton = QPushButton("파일추가")
         AddButton.setFont(font)
-        #AddButton.setGeometry(200, 150, 50, 40)
+        
         AddButton.adjustSize()
         AddButton.clicked.connect(AddFunc)
         
         RemoveButton = QPushButton("선택삭제")
-        #RemoveButton.resize(50, 50)
+        
         RemoveButton.setFont(font)
         RemoveButton.clicked.connect(RemoveFunc)
 
@@ -182,7 +177,7 @@ class AppD(QWidget):
         CancelButton.clicked.connect(self.close)
        
         buttonLayout1 = QVBoxLayout()
-        #buttonLayout1.addStretch(2)
+       
         buttonLayout1.addWidget(AddButton)
         buttonLayout1.addWidget(RemoveButton)
         buttonLayout1.addSpacing(400)
@@ -212,7 +207,7 @@ class AppD(QWidget):
 
         '''
 
-       
+
     # 파일 검사에 따른 timerEvent, Progressbar 제어
     def timerEvent(self, event):
         pass

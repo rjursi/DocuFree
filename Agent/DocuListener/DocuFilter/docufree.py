@@ -50,7 +50,7 @@ class Result_NotMSOffice(object):
 class Result_MacroOK(object):
     exit_code = 2
     color = 'cyan'
-    name = '정상 매크로'
+    name = '자동 실행 없음'
 
 class Result_Error(object):
     exit_code = 10

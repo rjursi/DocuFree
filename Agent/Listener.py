@@ -89,6 +89,7 @@ class DocuListener(QThread):
                 
                 if os.path.exists(self.ChangePathFormat(filename)):
                 # ApiServer Check
+                    
                     searchResult = DocuInfoComm.SetSearchFile(filename)
                     
                     print(searchResult)
